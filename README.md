@@ -12,7 +12,7 @@
 # Getting Started
 To start using EP3Gen to generate your own EPUB3 e-books, at a minimum download the following:
 
-1. `ep3gen.exe` if you are using Windows. If you using either Linux or MacOS, the easiest way is to clone this repo and and build the executable as follows: `go build -o ep3gen *.go`. Make sure to make the file executable.
+1. `ep3gen.exe` if you are using Windows. If you using either Linux or MacOS, the easiest way is to clone this repo and build the executable as follows: `go build -o ep3gen *.go`. Make sure to make the file executable.
 
 1. The `data` directory and all of its contents.
 
@@ -101,7 +101,7 @@ The following attributes are optional:
 
 1. `images`: It should contain the comma-separated list of image files for all images used in the book other than the cover image, such as, `image1.png,image2.png`. Make sure there are no spaces in the list.
 
-1. `titlepage`: This is optional but if given must contain one of the following: 1) `default`: EP3Gen will generate a default title page for the book; 2) `image-file`: EP3Gen will use the image file specified as the title page, and it must be one of the files listed above; 3) `custom`: You will need to specify a `<!--titlepage-->` directive with one or more custom HTML lines to use as the title page. If no `titlepage` attribute is given, it is the same as specifying `default`.
+1. `titlepage`: This is optional but if given must contain one of the following: 1) `default`: EP3Gen will generate a default title page for the book; 2) `anyname.png` or `anyname.jpeg`: EP3Gen will use the image file specified as the title page, and it must be one of the files listed above; 3) `custom`: You will need to specify a `<!--titlepage-->` directive with one or more custom HTML lines to use as the title page. If no `titlepage` attribute is given, it is the same as specifying `default`.
 
 1. `description`: It should be used to describe the book for marketing purposes which the user can read before opening the book for reading.
 
