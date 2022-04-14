@@ -13,13 +13,13 @@ import (
 	"text/template"
 	"time"
 
+	"gopkg.in/yaml.v3"
+
 	"github.com/google/uuid"
 	"github.com/roslamir/ep3gen/internal/fileutil"
 )
 
 const (
-	dataDir                  = "./data"
-	resourceDir              = "RES"
 	coverTemplate            = "cover.gohtml"
 	defaultTitlepageTemplate = "default-titlepage.gohtml"
 	imageTitlepageTemplate   = "image-titlepage.gohtml"
@@ -46,6 +46,11 @@ type ImageData struct {
 }
 
 var (
+	sourceDir    = "./data/source"
+	targetDir    = "./data/generated"
+	resourceDir  = "./data/etc"
+	templatesDir = "./data/templates"
+
 	tmpl           *template.Template
 	bookName       string            // the directory under which all the source files are located
 	packageDirSpec string            // the full path for the OEBPS directory
@@ -63,17 +68,41 @@ var (
 )
 
 func init() {
-	templateDir := filepath.Join(dataDir, "templates")
+	// Read in the configuration values
+	if cfgfile, err := os.ReadFile("./config.yaml"); err == nil {
+		cfgMap := make(map[string]string)
+		err = yaml.Unmarshal(cfgfile, &cfgMap)
+		if err != nil {
+			fmt.Println("WARNING: Error unmarshalling config.yaml file", err)
+			os.Exit(1)
+		}
+		if value, exists := cfgMap["source_dir"]; exists {
+			sourceDir = value
+		}
+		if value, exists := cfgMap["target_dir"]; exists {
+			targetDir = value
+		}
+		if value, exists := cfgMap["resource_dir"]; exists {
+			resourceDir = value
+		}
+		if value, exists := cfgMap["templates_dir"]; exists {
+			templatesDir = value
+		}
+	} else {
+		fmt.Println("WARNING: Cannot read config.yaml file -- using defaults")
+	}
+
+	// Load in the template files
 	tmpl = template.Must(template.ParseFiles(
-		filepath.Join(templateDir, coverTemplate),
-		filepath.Join(templateDir, defaultTitlepageTemplate),
-		filepath.Join(templateDir, imageTitlepageTemplate),
-		filepath.Join(templateDir, frontmatterTemplate),
-		filepath.Join(templateDir, bodymatterTemplate),
-		filepath.Join(templateDir, backmatterTemplate),
-		filepath.Join(templateDir, navTemplate),
-		filepath.Join(templateDir, ncxTemplate),
-		filepath.Join(templateDir, opfTemplate),
+		filepath.Join(templatesDir, coverTemplate),
+		filepath.Join(templatesDir, defaultTitlepageTemplate),
+		filepath.Join(templatesDir, imageTitlepageTemplate),
+		filepath.Join(templatesDir, frontmatterTemplate),
+		filepath.Join(templatesDir, bodymatterTemplate),
+		filepath.Join(templatesDir, backmatterTemplate),
+		filepath.Join(templatesDir, navTemplate),
+		filepath.Join(templatesDir, ncxTemplate),
+		filepath.Join(templatesDir, opfTemplate),
 	))
 }
 
@@ -83,12 +112,12 @@ func main() {
 	checkArgs()
 
 	// Read in the whole input source file and store the lines in the string slice 'lines'.
-	sourceDirSpec := filepath.Join(dataDir, "source", bookName)
+	sourceDirSpec := filepath.Join(sourceDir, bookName)
 	sourceFileSpec := filepath.Join(sourceDirSpec, "source.html")
 	lines = fileutil.ReadLines(sourceFileSpec)
 
 	// Remove the generated output directory and all children if it exists.
-	targetDirSpec := filepath.Join(dataDir, "generated", bookName)
+	targetDirSpec := filepath.Join(targetDir, bookName)
 	fileutil.DeleteDir(targetDirSpec)
 
 	// Create the EPUB directory tree
@@ -620,17 +649,17 @@ loop3:
 	//------------------------------------------------------------------------------------------------
 
 	// <bookdir>/mimetype
-	sourceFileSpec = filepath.Join(dataDir, resourceDir, "mimetype")
+	sourceFileSpec = filepath.Join(resourceDir, "mimetype")
 	targetFileSpec := filepath.Join(targetDirSpec, "mimetype")
 	fileutil.FileCopy(sourceFileSpec, targetFileSpec)
 
 	// <bookdir>/META-INF/container.xml
-	sourceFileSpec = filepath.Join(dataDir, resourceDir, "container.xml")
+	sourceFileSpec = filepath.Join(resourceDir, "container.xml")
 	targetFileSpec = filepath.Join(metainfDirSpec, "container.xml")
 	fileutil.FileCopy(sourceFileSpec, targetFileSpec)
 
 	// <bookdir>/OEBPS/Styles/stylesheet.css
-	sourceFileSpec = filepath.Join(dataDir, resourceDir, "stylesheet.css")
+	sourceFileSpec = filepath.Join(resourceDir, "stylesheet.css")
 	targetFileSpec = filepath.Join(stylesDirSpec, "stylesheet.css")
 	fileutil.FileCopy(sourceFileSpec, targetFileSpec)
 
