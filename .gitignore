@@ -11,8 +11,15 @@
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
+# Configuration files
+*.json
+*.properties
+*.yaml
+
 # IDE and editors
 *.code-workspace
+.idea/
+.vscode/
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
