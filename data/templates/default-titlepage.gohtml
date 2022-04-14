@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>{{.Title}}</title>
+    <link rel="stylesheet" type="text/css" href="../Styles/stylesheet.css" />
+    <!-- <link rel="stylesheet" type="text/css" href="../Styles/stylesheet.css" /> -->
+  </head>
+  <body>
+    <section id="titlepage" epub:type="titlepage">
+      <p class="title">
+        {{.Title}}
+      </p>
+      {{if .HasSubtitle}}
+      <p class="subtitle">
+        {{.Subtitle}}
+      </p>
+      {{end}}
+      {{if .HasSeries}}
+      <p class="series">
+        Book {{.SeriesIndex}} of {{.Series}}
+      </p>
+      {{end}}
+      <p class="publisher">by</p>
+      <p class="author">
+        {{.Author}}
+      {{if .HasAuthor2}}
+        <br />
+        {{.Author2}}{{end}}
+      {{if .HasAuthor3}}
+        <br />
+        {{.Author3}}{{end}}
+      </p>
+      <p class="publisher">
+        {{.Publisher}}
+        <br />
+        {{.Published}}
+      </p>
+    </section>
+  </body>
+</html>

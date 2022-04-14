@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package version="3.0" unique-identifier="pub-id" xmlns="http://www.idpf.org/2007/opf" xmlns:opf="http://www.idpf.org/2007/opf">
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <dc:identifier id="pub-id">{{.UUID}}</dc:identifier>
+    {{if .HasISBN}}
+    <dc:identifier id="ISBN">{{.ISBN}}</dc:identifier>
+    {{end}}
+    <dc:language>{{.Language}}</dc:language>
+    <dc:title id="pub-title">{{.Title}}</dc:title>
+    <meta refines="#pub-title" property="title-type">main</meta>
+    <meta refines="#pub-title" property="file-as">{{.TitleSort}}</meta>
+    <meta refines="#pub-title" property="group-position">1</meta>
+    <meta name="calibre:title_sort" content="{{.TitleSort}}" />
+    <dc:creator id="author">{{.Author}}</dc:creator>
+    <meta refines="#author" property="file-as">{{.AuthorSort}}</meta>
+    <meta refines="#author" property="role" scheme="marc:relators">aut</meta>
+    <meta name="calibre:author_sort" content="{{.AuthorSort}}" />
+    <dc:contributor id="contributor">R. A.</dc:contributor>
+    <meta refines="#contributor" property="role" scheme="marc:relators">bkp</meta>
+    {{if .HasSeries}}
+    <meta name="calibre:series" content="{{.SeriesTitle}}" />
+    <meta name="calibre:series_index" content="{{.SeriesIndex}}" />
+    {{end}}
+    <dc:publisher>{{.Publisher}}</dc:publisher>
+    <dc:description>{{.Description}}</dc:description>
+    {{range .Subjects}}
+    <dc:subject>{{.}}</dc:subject>
+    {{end}}
+    {{if .HasRights}}
+    <dc:rights>{{.Rights}}</dc:rights>
+    {{end}}
+    <dc:date>{{.Created}}</dc:date>
+    <meta property="dcterms:modified">{{.Modified}}</meta>
+    <meta name="cover" content="cover-image" />
+  </metadata>
+  <manifest>
+    {{with .CoverImage}}
+    <item id="cover-image" href="Images/{{.Name}}.{{.Ext}}" media-type="image/{{.Ext}}" properties="cover-image" />
+    {{end}}
+    {{range .Images}}
+    <item id="{{.Name}}-{{.Ext}}" href="Images/{{.Name}}.{{.Ext}}" media-type="image/{{.Ext}}" />
+    {{end}}
+    <item id="css" href="Styles/stylesheet.css" media-type="text/css" />
+    <item id="nav" href="Text/nav.xhtml" media-type="application/xhtml+xml" properties="nav" />
+    {{range .Sections}}
+    <item id="{{.ID}}" href="Text/{{.ID}}.xhtml" media-type="application/xhtml+xml" />
+    {{end}}
+    <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml" />
+  </manifest>
+  <spine toc="ncx">
+    <itemref idref="nav" />
+    {{range .Sections}}
+    <itemref idref="{{.ID}}" />
+    {{end}}
+  </spine>
+  <guide>
+    {{range .Guides}}
+    <reference title="{{.Heading}}" type="{{.EpubType}}" href="Text/{{.ID}}.xhtml" />
+    {{end}}
+  </guide>
+</package>

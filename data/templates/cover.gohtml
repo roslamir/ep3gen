@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>{{.Title}}</title>
+    <link rel="stylesheet" type="text/css" href="../Styles/stylesheet.css" />
+    <!-- <link rel="stylesheet" type="text/css" href="../Styles/stylesheet.css" /> -->
+  </head>
+  <body class="fullpage">
+    <section id="cover" epub:type="cover">
+      <figure>
+        {{with .CoverImage}}
+        <img src="../Images/{{.Name}}.{{.Ext}}" role="presentation" alt="Cover Page" title="Cover Page" />
+        {{end}}
+      </figure>
+    </section>
+  </body>
+</html>

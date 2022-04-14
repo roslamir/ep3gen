@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package version="3.0" unique-identifier="pub-id" xmlns="http://www.idpf.org/2007/opf" xmlns:opf="http://www.idpf.org/2007/opf">
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <dc:identifier id="pub-id">8712B7FA-16A7-4E75-9EFC-4ADAF1A6AF7D</dc:identifier>
+    
+    <dc:language>en</dc:language>
+    <dc:title id="pub-title">Treasure Island</dc:title>
+    <meta refines="#pub-title" property="title-type">main</meta>
+    <meta refines="#pub-title" property="file-as">Treasure Island</meta>
+    <meta refines="#pub-title" property="group-position">1</meta>
+    <meta name="calibre:title_sort" content="Treasure Island" />
+    <dc:creator id="author">Robert Louis Stevenson</dc:creator>
+    <meta refines="#author" property="file-as">Stevenson, Robert Louis</meta>
+    <meta refines="#author" property="role" scheme="marc:relators">aut</meta>
+    <meta name="calibre:author_sort" content="Stevenson, Robert Louis" />
+    <dc:contributor id="contributor">R. A.</dc:contributor>
+    <meta refines="#contributor" property="role" scheme="marc:relators">bkp</meta>
+    
+    <dc:publisher>Cassell and Company</dc:publisher>
+    <dc:description>&lt;strong&gt;Robert Louis Stevenson’s rousing seafaring classic.&lt;/strong&gt;&lt;br/&gt;&lt;br/&gt;“&lt;em&gt;Fifteen men on a dead man’s chest—&lt;br/&gt;Yo-ho-ho, and a bottle of rum!&lt;/em&gt;”&lt;br/&gt;&lt;br/&gt;For sheer storytelling delight and pure adventure, &lt;em&gt;Treasure Island&lt;/em&gt; has never been surpassed. From young Jim Hawkins’s first encounter with the sinister beggar Pew to the climactic battle with the most memorable villain in literature, Long John Silver, this novel has fired readers’ imaginations for generations. A rousing tale of treachery, greed, and daring, &lt;em&gt;Treasure Island&lt;/em&gt; continues to enthrall readers of all ages.&lt;br/&gt;**</dc:description>
+    
+    <dc:subject>General</dc:subject>
+    
+    <dc:subject>Fiction</dc:subject>
+    
+    <dc:subject>Action &amp; Adventure</dc:subject>
+    
+    
+    <dc:date>2022-04-14T06:02:51Z</dc:date>
+    <meta property="dcterms:modified">2022-04-14T06:02:51Z</meta>
+    <meta name="cover" content="cover-image" />
+  </metadata>
+  <manifest>
+    
+    <item id="cover-image" href="Images/cover.jpeg" media-type="image/jpeg" properties="cover-image" />
+    
+    
+    <item id="author-jpeg" href="Images/author.jpeg" media-type="image/jpeg" />
+    
+    <item id="css" href="Styles/stylesheet.css" media-type="text/css" />
+    <item id="nav" href="Text/nav.xhtml" media-type="application/xhtml+xml" properties="nav" />
+    
+    <item id="cover" href="Text/cover.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="titlepage" href="Text/titlepage.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="copyright" href="Text/copyright.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section001" href="Text/section001.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section002" href="Text/section002.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section003" href="Text/section003.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section004" href="Text/section004.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section005" href="Text/section005.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section006" href="Text/section006.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section007" href="Text/section007.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section008" href="Text/section008.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section009" href="Text/section009.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section010" href="Text/section010.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section011" href="Text/section011.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section012" href="Text/section012.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section013" href="Text/section013.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section014" href="Text/section014.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section015" href="Text/section015.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section016" href="Text/section016.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section017" href="Text/section017.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section018" href="Text/section018.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section019" href="Text/section019.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section020" href="Text/section020.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section021" href="Text/section021.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section022" href="Text/section022.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section023" href="Text/section023.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section024" href="Text/section024.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section025" href="Text/section025.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section026" href="Text/section026.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section027" href="Text/section027.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section028" href="Text/section028.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section029" href="Text/section029.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section030" href="Text/section030.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section031" href="Text/section031.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section032" href="Text/section032.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section033" href="Text/section033.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section034" href="Text/section034.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section035" href="Text/section035.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section036" href="Text/section036.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section037" href="Text/section037.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section038" href="Text/section038.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section039" href="Text/section039.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section040" href="Text/section040.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section041" href="Text/section041.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section042" href="Text/section042.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="section043" href="Text/section043.xhtml" media-type="application/xhtml+xml" />
+    
+    <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml" />
+  </manifest>
+  <spine toc="ncx">
+    <itemref idref="nav" />
+    
+    <itemref idref="cover" />
+    
+    <itemref idref="titlepage" />
+    
+    <itemref idref="copyright" />
+    
+    <itemref idref="section001" />
+    
+    <itemref idref="section002" />
+    
+    <itemref idref="section003" />
+    
+    <itemref idref="section004" />
+    
+    <itemref idref="section005" />
+    
+    <itemref idref="section006" />
+    
+    <itemref idref="section007" />
+    
+    <itemref idref="section008" />
+    
+    <itemref idref="section009" />
+    
+    <itemref idref="section010" />
+    
+    <itemref idref="section011" />
+    
+    <itemref idref="section012" />
+    
+    <itemref idref="section013" />
+    
+    <itemref idref="section014" />
+    
+    <itemref idref="section015" />
+    
+    <itemref idref="section016" />
+    
+    <itemref idref="section017" />
+    
+    <itemref idref="section018" />
+    
+    <itemref idref="section019" />
+    
+    <itemref idref="section020" />
+    
+    <itemref idref="section021" />
+    
+    <itemref idref="section022" />
+    
+    <itemref idref="section023" />
+    
+    <itemref idref="section024" />
+    
+    <itemref idref="section025" />
+    
+    <itemref idref="section026" />
+    
+    <itemref idref="section027" />
+    
+    <itemref idref="section028" />
+    
+    <itemref idref="section029" />
+    
+    <itemref idref="section030" />
+    
+    <itemref idref="section031" />
+    
+    <itemref idref="section032" />
+    
+    <itemref idref="section033" />
+    
+    <itemref idref="section034" />
+    
+    <itemref idref="section035" />
+    
+    <itemref idref="section036" />
+    
+    <itemref idref="section037" />
+    
+    <itemref idref="section038" />
+    
+    <itemref idref="section039" />
+    
+    <itemref idref="section040" />
+    
+    <itemref idref="section041" />
+    
+    <itemref idref="section042" />
+    
+    <itemref idref="section043" />
+    
+  </spine>
+  <guide>
+    
+    <reference title="Cover Page" type="cover" href="Text/cover.xhtml" />
+    
+    <reference title="Title Page" type="titlepage" href="Text/titlepage.xhtml" />
+    
+    <reference title="Part 1" type="part" href="Text/section003.xhtml" />
+    
+    <reference title="About the Author" type="appendix" href="Text/section043.xhtml" />
+    
+  </guide>
+</package>
