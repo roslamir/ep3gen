@@ -62,7 +62,22 @@ Here's how you can create your own EPUB3-compliant e-book:
 
 6. I also use specific HTML comments as directives to organize the various sections (such as cover page, copyright section, preface, parts, chapter, appendices, etc).
 
-7. See the sample file in `data\source\rls-treasure-island\source.html` to see how the HTML file is contructed. 
+7. See the sample file in `data/source/rls-treasure-island/source.html` to see how the HTML file is contructed. 
+
+# Overriding default locations
+You can override the default locations by editing the file `config.yaml` which should be in the current directory whenever you run the commands. The default `config.yaml` is:
+
+    # The parent directory of all e-book source directories
+    source_dir: ./data/source
+
+    # The parent directory of all e-book generated contents
+    target_dir: ./data/generated
+
+    # Where you can find the static files and the CSS file
+    resource_dir: ./data/etc
+
+    # Where you can find the Go text/template source files
+    templates_dir: ./data/templates
 
 # Attributes
 Attributes are specified as `<meta>` elements under the `<head>` element of the HTML file. It has the format:
@@ -155,7 +170,7 @@ The following directives are optional. The first line must consist of the header
 1. `<!--appendix-->`: May occur multiple times. Acts as the generic section for the back part of the book.
 
 # Stylesheet
-Under the `data\RES` folder you can find the minimal `stylesheet.css` file for formatting the HTML elements used the book. Feel free to modify it to your heart's content. Make sure it is named `stylesheet.css`.
+Under the `data/etc` folder you can find the minimal `stylesheet.css` file for formatting the HTML elements used the book. Feel free to modify it to your heart's content. Make sure it is named `stylesheet.css`.
 
 # Contributing
 Please read our [Contributing Guide](https://github.com/roslamir/ep3gen/blob/main/CONTRIBUTING.md) before submitting a pull request to the project.
