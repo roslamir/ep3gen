@@ -304,8 +304,7 @@ func genOPFFile() {
 	_, hasISBN := attributes["isbn"]
 	_, hasSeries := attributes["series"]
 	_, hasRights := attributes["rights"]
-	description := strings.Replace(attributes["description"], "&", "&amp;", -1)
-	description = strings.Replace(description, "<", "&lt;", -1)
+	description := strings.Replace(attributes["description"], "<", "&lt;", -1)
 	description = strings.Replace(description, ">", "&gt;", -1)
 
 	data := struct {

@@ -1,6 +1,4 @@
 # Binaries for programs and plugins
-*.exe
-*.exe~
 *.dll
 *.so
 *.dylib
@@ -20,6 +18,10 @@
 *.code-workspace
 .idea/
 .vscode/
+
+# Generated files
+data/generated/*
+data/generated/*.epub
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
