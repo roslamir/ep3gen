@@ -92,6 +92,20 @@ func init() {
 		fmt.Println("WARNING: Cannot read config.yaml file -- using defaults")
 	}
 
+	// Checks if any of the above is overriden by an environment variable
+	if value := os.Getenv("EP3GEN_SOURCE_DIR"); value != "" {
+		sourceDir = value
+	}
+	if value := os.Getenv("EP3GEN_TARGET_DIR"); value != "" {
+		targetDir = value
+	}
+	if value := os.Getenv("EP3GEN_RESOURCE_DIR"); value != "" {
+		resourceDir = value
+	}
+	if value := os.Getenv("EP3GEN_TEMPLATES_DIR"); value != "" {
+		templatesDir = value
+	}
+
 	// Load in the template files
 	tmpl = template.Must(template.ParseFiles(
 		filepath.Join(templatesDir, coverTemplate),
