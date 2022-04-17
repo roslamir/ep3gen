@@ -79,6 +79,13 @@ You can override the default locations by editing the file `config.yaml` which s
     # Where you can find the Go text/template source files
     templates_dir: ./data/templates
 
+You can also override individual properties in the `config.yaml` by using the host environment variables. The following are the equivalent host environment variables for the above:
+
+1. `EP3GEN_SOURCE_DIR`
+2. `EP3GEN_TARGET_DIR`
+3. `EP3GEN_RESOURCE_DIR`
+4. `EP3GEN_TEMPLATES_DIR`
+
 # Attributes
 Attributes are specified as `<meta>` elements under the `<head>` element of the HTML file. It has the format:
 
