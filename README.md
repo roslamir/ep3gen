@@ -43,7 +43,7 @@ You will see the following output:
 
 I have created a Windows Powershell script `epg.ps1` to automate the two steps above. You can customize it to your liking or use it as the basis for your own Linux or MacOS bash script.
 
-Under the `data/generated` directory, you can see the file `rls-treasure-island.epub`. 
+Under the `data/generated` directory, you can see the file `rls-treasure-island.epub`.
 
 Use your favorite e-book reader to read the new *Treasure Island* e-book. I use Calibre e-book viewer on Windows. You can also transfer the book to your phone and read it there.
 
@@ -62,7 +62,7 @@ Here's how you can create your own EPUB3-compliant e-book:
 
 6. I also use specific HTML comments as directives to organize the various sections (such as cover page, copyright section, preface, parts, chapter, appendices, etc).
 
-7. See the sample file in `data/source/rls-treasure-island/source.html` to see how the HTML file is contructed. 
+7. See the sample file in `data/source/rls-treasure-island/source.html` to see how the HTML file is contructed.
 
 # Overriding default locations
 You can override the default locations by editing the file `config.yaml` which should be in the current directory whenever you run the commands. The default `config.yaml` is:
@@ -113,6 +113,8 @@ The following attributes are mandatory:
 
 The following attributes are optional:
 
+1. `subtitle`: It should contain the subtitle of the book as displayed on the book cover and title page, if available.
+
 1. `author2`: It should contain the name of the second author as displayed on the cover page, if any.
 
 1. `author3`: It should contain the name of the third author as displayed on the cover page, if any.
@@ -127,11 +129,9 @@ The following attributes are optional:
 
 1. `description`: It should be used to describe the book for marketing purposes which the user can read before opening the book for reading.
 
-1. `subject`: A comma-separated list of subjects describing the various classifications of the book such as *General, Fiction, Action &amp; Adventure*
+1. `subject`: A comma-separated list of subjects describing the various classifications of the book such as "General, Fiction, Action &amp; Adventure".
 
 1. `created`: The date and time the book was first created in the RFC3339 format. If not supplied, EP3Gen will use the current date and time as the creation date. EP3Gen will automatically add the `modified` attribute in any case which is required by the EPUB3 specifications.
-
-1. `subtitle`: It should contain the subtitle of the book as displayed on the book cover and title page, if available.
 
 1. `isbn`: If you have the ISBN for the book, you can specify it here.
 
@@ -144,7 +144,7 @@ Directives are specified as HTML comments inserted among the `<hx>`, `<p>`, etc 
 
 1. `<!--titlepage-->`: This is mandatory if you specify the attribute `titlepage` as `custom`. It must be the first directive after the `<body>` element. It should contain one or more formatted HTML elements and will be used to display the title page.
 
-1. `<!--copyright-->`: This is mandatory and must be present. The first line must be `<h1>&#160;</h1>` to indicate en empty heading for this section. Must be followed by one of more formatted HTML to display the copyright section of the book. The section heading is hard-coded as `Copyright` for display in the TOC.
+1. `<!--copyright-->`: This is mandatory and must be present. The first line must be `<h1>&#160;</h1>` to indicate an empty heading for this section. Must be followed by one of more formatted HTML to display the copyright section of the book. The section heading is hard-coded as `Copyright` for display in the TOC.
 
 1. `<!--chapter-->`: At least one of this must be present in the source HTML file. This represents a chapter or section in the book. The first line must contain the chapter heading with one of the `<h1>`, `<h2>` or `<h3>` elements. It must be followed by one or more formatted HTML elements.
 
@@ -183,4 +183,4 @@ Under the `data/etc` folder you can find the minimal `stylesheet.css` file for f
 Please read our [Contributing Guide](https://github.com/roslamir/ep3gen/blob/main/CONTRIBUTING.md) before submitting a pull request to the project.
 
 # License
-Licensed under the [MIT License](https://github.com/roslamir/ep3gen/blob/main/LICENSE.md)
+Licensed under the [MIT License](https://github.com/roslamir/ep3gen/blob/main/LICENSE)
