@@ -93,16 +93,16 @@ func init() {
 	}
 
 	// Checks if any of the above is overriden by an environment variable
-	if value := os.Getenv("EP3GEN_SOURCE_DIR"); value != "" {
+	if value := os.Getenv("EPUBGEN_SOURCE_DIR"); value != "" {
 		sourceDir = value
 	}
-	if value := os.Getenv("EP3GEN_TARGET_DIR"); value != "" {
+	if value := os.Getenv("EPUBGEN_TARGET_DIR"); value != "" {
 		targetDir = value
 	}
-	if value := os.Getenv("EP3GEN_RESOURCE_DIR"); value != "" {
+	if value := os.Getenv("EPUBGEN_RESOURCE_DIR"); value != "" {
 		resourceDir = value
 	}
-	if value := os.Getenv("EP3GEN_TEMPLATES_DIR"); value != "" {
+	if value := os.Getenv("EPUBGEN_TEMPLATES_DIR"); value != "" {
 		templatesDir = value
 	}
 

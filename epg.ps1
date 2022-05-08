@@ -1,7 +1,7 @@
 # Creates, checks and packages EPUB3 books
 #
 Function Usage {
-  Write-Host "EPG: Creates, checks and packages EPUB3 books"
+  Write-Host "EPUBGen: Creates, checks and packages EPUB3 books"
   Write-Host "Usage:"
   Write-Host "  epg <bookname>"
 }
@@ -15,7 +15,7 @@ $epubcheck = "C:\Java\epubcheck-4.2.6\epubcheck.jar"
 $book = $args[0]
 
 Write-Host "Generating $book..."
-./ep3gen $book
+./epubgen $book
 if ($?) {
   Write-Host ""
   Write-Host "Checking $book..."
