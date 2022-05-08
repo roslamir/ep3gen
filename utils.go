@@ -85,8 +85,9 @@ func newSectionData(epubType, heading string) SectionData {
 // On entry, currLine contains the string with the tag.
 func extractHeading() string {
 	var heading string
-	if strings.HasPrefix(currLine, "<h1>") || strings.HasPrefix(currLine, "<h2>") || strings.HasPrefix(currLine, "<h3>") {
-		heading = currLine[len("<h1>") : len(currLine)-len("</h1>")]
+	if strings.HasPrefix(currLine, "<h1") || strings.HasPrefix(currLine, "<h2") || strings.HasPrefix(currLine, "<h3") {
+		pos := strings.Index(currLine, ">") + 1
+		heading = currLine[pos : len(currLine)-len("</h1>")]
 	} else {
 		fmt.Println("ERROR: Unexpected HTML line: ", currLine)
 		fmt.Println("ERROR: HTML line with one of the tags <h1>, <h2> or <h3> expected")

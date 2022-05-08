@@ -78,6 +78,11 @@ h4 {
   margin: 1.33em 0;
 }
 
+h1.chapter, h2.chapter, h3.chapter {
+  margin-top: 3em;
+  margin-bottom: 1em;
+}
+
 /* Text inside a grey box - used to indicate a note, etc. */
 div.note {
   background-color: #F0F0F0;
