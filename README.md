@@ -1,18 +1,18 @@
 <div id="banner" align="center">
     <br />
-    <h1>EP3Gen</h1>
+    <h1>EPUBGen</h1>
     <h3>Free/Libre Open Source e-book generator written in Go</h3>
 </div>
 
 # Overview
-**EP3Gen** is my attempt at learning the Go programming language. I decided to build a command line program to help generate and package an EPUB3-compliant e-book. Instead of building a fancy visual editor to create an e-book, why not use a single HTML file as the source for the e-book? As a developer, I have access to many powerful free and open source IDEs and text editors such as Eclipse, ItelliJ IDEA Community and VSCodium/VSCode with which to create the HTML file. If you prefer the fancy visual editor take a look at [Sigil.](https://sigil-ebook.com/)
+**EPUBGen** is my attempt at learning the Go programming language. I decided to build a command line program to help generate and package an EPUB3-compliant e-book. Instead of building a fancy visual editor to create an e-book, why not use a single HTML file as the source for the e-book? As a developer, I have access to many powerful free and open source IDEs and text editors such as Eclipse, ItelliJ IDEA Community and VSCodium/VSCode with which to create the HTML file. If you prefer the fancy visual editor take a look at [Sigil.](https://sigil-ebook.com/)
 
-**EP3Gen** is a text processor which reads and processes the HTML source file and generates all the files in a directory structure expected by EPUB3. The generated directory and its subdirectories and contents can then be checked and packaged into an `.epub` file by running the utility [EPUBCheck.](https://github.com/w3c/epubcheck/releases/)
+**EPUBGen** is a text processor which reads and processes the HTML source file and generates all the files in a directory structure expected by EPUB3. The generated directory and its subdirectories and contents can then be checked and packaged into an `.epub` file by running the utility [EPUBCheck.](https://github.com/w3c/epubcheck/releases/)
 
 # Getting Started
-To start using EP3Gen to generate your own EPUB3 e-books, at a minimum download the following:
+To start using EPUBGen to generate your own EPUB3 e-books, at a minimum download the following:
 
-1. `ep3gen.exe` if you are using Windows. If you using either Linux or MacOS, the easiest way is to clone this repo and build the executable as follows: `go build -o ep3gen *.go`. Make sure to make the file executable.
+1. `epubgen.exe` if you are using Windows. If you using either Linux or MacOS, the easiest way is to clone this repo and build the executable as follows: `go build -o epubgen *.go`. Make sure to make the file executable.
 
 1. The `data` directory and all of its contents.
 
@@ -21,7 +21,7 @@ Under the `data/source` directory you can find the folder `rls-treasure-island`.
 
 Issue the following command under Powershell, Command Prompt, Git-Bash or Terminal:
 
-    ep3gen rls-treasure-island    // use ./ep3gen under Linux or MacOS
+    epubgen rls-treasure-island    // use ./epubgen under Linux or MacOS
 
 Under the `data/generated` directory, you can see the folder `rls-treasure-island` which contains the expanded EPUB3 e-book package.
 
@@ -81,10 +81,10 @@ You can override the default locations by editing the file `config.yaml` which s
 
 You can also override individual properties in the `config.yaml` by using the host environment variables. The following are the equivalent host environment variables for the above:
 
-1. `EP3GEN_SOURCE_DIR`
-2. `EP3GEN_TARGET_DIR`
-3. `EP3GEN_RESOURCE_DIR`
-4. `EP3GEN_TEMPLATES_DIR`
+1. `EPUBGEN_SOURCE_DIR`
+2. `EPUBGEN_TARGET_DIR`
+3. `EPUBGEN_RESOURCE_DIR`
+4. `EPUBGEN_TEMPLATES_DIR`
 
 # Attributes
 Attributes are specified as `<meta>` elements under the `<head>` element of the HTML file. It has the format:
@@ -123,13 +123,13 @@ The following attributes are optional:
 
 1. `images`: It should contain the comma-separated list of image files for all images used in the book other than the cover image, such as, `image1.png,image2.png`. Make sure there are no spaces in the list.
 
-1. `titlepage`: This is optional but if given must contain one of the following: 1) `default`: EP3Gen will generate a default title page for the book; 2) `anyname.png` or `anyname.jpeg`: EP3Gen will use the image file specified as the title page, and it must be one of the files listed above; 3) `custom`: You will need to specify a `<!--titlepage-->` directive with one or more custom HTML lines to use as the title page. If no `titlepage` attribute is given, it is the same as specifying `default`.
+1. `titlepage`: This is optional but if given must contain one of the following: 1) `default`: EPUBGen will generate a default title page for the book; 2) `anyname.png` or `anyname.jpeg`: EPUBGen will use the image file specified as the title page, and it must be one of the files listed above; 3) `custom`: You will need to specify a `<!--titlepage-->` directive with one or more custom HTML lines to use as the title page. If no `titlepage` attribute is given, it is the same as specifying `default`.
 
 1. `description`: It should be used to describe the book for marketing purposes which the user can read before opening the book for reading.
 
 1. `subject`: A comma-separated list of subjects describing the various classifications of the book such as *General, Fiction, Action &amp; Adventure*
 
-1. `created`: The date and time the book was first created in the RFC3339 format. If not supplied, EP3Gen will use the current date and time as the creation date. EP3Gen will automatically add the `modified` attribute in any case which is required by the EPUB3 specifications.
+1. `created`: The date and time the book was first created in the RFC3339 format. If not supplied, EPUBGen will use the current date and time as the creation date. EPUBGen will automatically add the `modified` attribute in any case which is required by the EPUB3 specifications.
 
 1. `subtitle`: It should contain the subtitle of the book as displayed on the book cover and title page, if available.
 
@@ -180,7 +180,7 @@ The following directives are optional. The first line must consist of the header
 Under the `data/etc` folder you can find the minimal `stylesheet.css` file for formatting the HTML elements used the book. Feel free to modify it to your heart's content. Make sure it is named `stylesheet.css`.
 
 # Contributing
-Please read our [Contributing Guide](https://github.com/roslamir/ep3gen/blob/main/CONTRIBUTING.md) before submitting a pull request to the project.
+Please read our [Contributing Guide](https://github.com/roslamir/epubgen/blob/main/CONTRIBUTING.md) before submitting a pull request to the project.
 
 # License
-Licensed under the [MIT License](https://github.com/roslamir/ep3gen/blob/main/LICENSE.md)
+Licensed under the [MIT License](https://github.com/roslamir/epubgen/blob/main/LICENSE.md)
