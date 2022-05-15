@@ -12,15 +12,54 @@
       <header>
         <h3>Table of Contents</h3>
       </header>
-      <nav xmlns:epub="http://www.idpf.org/2007/ops" epub:type="toc" id="toc">
-        <ol>
-          {{range .Sections}}
-          <li>
-            <a href="{{.ID}}.xhtml">{{.Heading}}</a>
-          </li>
-          {{end}}
-        </ol>
-      </nav>
+      {{if .HasParts}}
+        <nav xmlns:epub="http://www.idpf.org/2007/ops" epub:type="toc" id="toc">
+          <ol>
+            {{range .FrontSections}}
+            <li>
+              <a href="{{.ID}}.xhtml">{{.Heading}}</a>
+            </li>
+            {{end}}
+            {{range .PartSections}}
+            <li>
+              <a href="{{.Part.ID}}.xhtml">{{.Part.Heading}}</a>
+              <ol>
+                {{range .Chapters}}
+                <li>
+                  <a href="{{.ID}}.xhtml">{{.Heading}}</a>
+                </li>
+                {{end}}
+              </ol>
+            </li>
+            {{end}}
+            {{range .BackSections}}
+            <li>
+              <a href="{{.ID}}.xhtml">{{.Heading}}</a>
+            </li>
+            {{end}}
+          </ol>
+        </nav>
+      {{else}}
+        <nav xmlns:epub="http://www.idpf.org/2007/ops" epub:type="toc" id="toc">
+          <ol>
+            {{range .FrontSections}}
+            <li>
+              <a href="{{.ID}}.xhtml">{{.Heading}}</a>
+            </li>
+            {{end}}
+            {{range .ChapterSections}}
+            <li>
+              <a href="{{.ID}}.xhtml">{{.Heading}}</a>
+            </li>
+            {{end}}
+            {{range .BackSections}}
+            <li>
+              <a href="{{.ID}}.xhtml">{{.Heading}}</a>
+            </li>
+            {{end}}
+          </ol>
+        </nav>
+      {{end}}
       <nav xmlns:epub="http://www.idpf.org/2007/ops" epub:type="landmarks" id="guide">
         <h3>Guide</h3>
         <ol>

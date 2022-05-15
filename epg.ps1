@@ -11,7 +11,7 @@ if ($args.length -eq 0) {
   exit
 }
 
-$epubcheck = "C:\Java\epubcheck-4.2.6\epubcheck.jar"
+$epubcheck = "C:\Programs\epubcheck-4.2.6\epubcheck.jar"
 $book = $args[0]
 
 Write-Host "Generating $book..."

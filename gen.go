@@ -23,6 +23,7 @@ func genCoverSection(section SectionData) {
 	outfile := fileutil.CreateFile(outfilespec)
 	defer outfile.Close()
 
+	// Struct to pass to the template
 	data := struct {
 		Title      string
 		CoverImage ImageData
@@ -48,6 +49,7 @@ func genDefaultTitlePageSection(section SectionData) {
 	outfile := fileutil.CreateFile(outfilespec)
 	defer outfile.Close()
 
+	// Struct to pass to the template
 	_, hasSubtitle := attributes["subtitle"]
 	_, hasSeries := attributes["series"]
 	_, hasAuthor2 := attributes["author2"]
@@ -99,6 +101,7 @@ func genImageTitlePageSection(section SectionData, image ImageData) {
 	outfile := fileutil.CreateFile(outfilespec)
 	defer outfile.Close()
 
+	// Struct to pass to the template
 	data := struct {
 		Title    string
 		ID       string
@@ -141,6 +144,7 @@ func genFrontmatterSection(section SectionData) {
 		}
 	}
 
+	// Struct to pass to the template
 	data := struct {
 		Title    string
 		ID       string
@@ -180,6 +184,7 @@ func genBodyMatterSection(section SectionData) {
 		}
 	}
 
+	// Struct to pass to the template
 	data := struct {
 		Title    string
 		ID       string
@@ -219,6 +224,7 @@ func genBackmatterSection(section SectionData) {
 		}
 	}
 
+	// Struct to pass to the template
 	data := struct {
 		Title    string
 		ID       string
@@ -238,6 +244,12 @@ func genBackmatterSection(section SectionData) {
 	fmt.Println("done")
 }
 
+// PartSectionData holds the list of part sections with their chapter sections.
+type PartSectionData struct {
+	Part     SectionData
+	Chapters []SectionData
+}
+
 // genNAVFile generates the NAV (TOC) file (required for EPUB3).
 func genNAVFile() {
 	fileName := "nav.xhtml"
@@ -247,14 +259,83 @@ func genNAVFile() {
 	outfile := fileutil.CreateFile(outfilespec)
 	defer outfile.Close()
 
+	var index int
+	var section SectionData
+
+	// Get the slice of 'sections' that forms the frontmatter
+	for index, section = range sections {
+		if section.EpubType == "part" || section.EpubType == "chapter" {
+			break
+		}
+	}
+	frontSections := sections[:index]
+
+	// Flag indicating whether this book contains parts and chapters or just chapters
+	hasParts := section.EpubType == "part"
+
+	var partSections []PartSectionData
+	var chapterSections []SectionData
+	var startIndex int
+	if hasParts {
+		// Get the slice of 'sections' that forms the parts and chapters
+		firstTime := true
+		var currPart SectionData
+		for {
+			section = sections[index]
+			if section.EpubType == "part" {
+				if firstTime {
+					firstTime = false
+					partSections = make([]PartSectionData, 0)
+					currPart = section
+					startIndex = index + 1
+				} else {
+					partSection := PartSectionData{
+						Part:     currPart,
+						Chapters: sections[startIndex:index],
+					}
+					partSections = append(partSections, partSection)
+					currPart = section
+					startIndex = index + 1
+				}
+			} else if section.EpubType != "chapter" {
+				partSection := PartSectionData{
+					Part:     currPart,
+					Chapters: sections[startIndex:index],
+				}
+				partSections = append(partSections, partSection)
+				break
+			}
+			index++
+		}
+	} else {
+		// Get the slice of 'sections' that forms the chapters (no parts)
+		startIndex := index
+		for ; sections[index].EpubType != "chapter"; index++ {
+			break
+		}
+		chapterSections = sections[startIndex:index]
+	}
+
+	// Get the slice of 'sections' that forms the backmatter
+	backSections := sections[index:]
+
+	// Struct to pass to the template
 	data := struct {
-		Title    string
-		Sections []SectionData
-		Guides   []SectionData
+		Title           string
+		FrontSections   []SectionData
+		HasParts        bool
+		PartSections    []PartSectionData
+		ChapterSections []SectionData
+		BackSections    []SectionData
+		Guides          []SectionData
 	}{
-		Title:    attributes["title"],
-		Sections: sections,
-		Guides:   guides,
+		Title:           attributes["title"],
+		FrontSections:   frontSections,
+		HasParts:        hasParts,
+		PartSections:    partSections,
+		ChapterSections: chapterSections,
+		BackSections:    backSections,
+		Guides:          guides,
 	}
 
 	if err := tmpl.ExecuteTemplate(outfile, navTemplate, data); err != nil {
@@ -274,6 +355,7 @@ func genNCXFile() {
 	outfile := fileutil.CreateFile(outfilespec)
 	defer outfile.Close()
 
+	// Struct to pass to the template
 	data := struct {
 		UUID     string
 		Title    string
@@ -307,6 +389,7 @@ func genOPFFile() {
 	description := strings.Replace(attributes["description"], "<", "&lt;", -1)
 	description = strings.Replace(description, ">", "&gt;", -1)
 
+	// Struct to pass to the template
 	data := struct {
 		UUID        string
 		HasISBN     bool
