@@ -101,6 +101,14 @@ div.note p {
   text-align: left;
 }
 
+div.note p.right {
+  text-align: right;
+}
+
+div.note p.center {
+  text-align: center;
+}
+
 /* Default style for a paragraph.
    The font is specified in the body selector.
    The [text-indent] will make a paragraph indent, like putting a tab at the beginning of each new paragraph.
@@ -129,13 +137,19 @@ p.noindent {
   text-indent: 0;
 }
 
+/* For the rare cases where we need to left align the paragraph */
+p.left {
+  text-indent: 0;
+  text-align: left;
+}
+
 /* For the rare cases where we need to right align the paragraph */
 p.right {
   text-indent: 0;
   text-align: right;
 }
 
-/* For the rare cases where we need to denter the paragraph */
+/* For the rare cases where we need to center the paragraph */
 p.center {
   text-indent: 0;
   text-align: center;
