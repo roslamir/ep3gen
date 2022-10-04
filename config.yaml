@@ -1,0 +1,11 @@
+# The parent directory of all e-book source directories
+source_dir: ./data/source
+
+# The parent directory of all e-book generated contents
+target_dir: ./data/generated
+
+# Where you can find the static files and the CSS file
+resource_dir: ./data/etc
+
+# Where you can find the Go text/template source files
+templates_dir: ./data/templates

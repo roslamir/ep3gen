@@ -12,7 +12,6 @@
 # Configuration files
 *.json
 *.properties
-*.yaml
 
 # IDE and editors
 *.code-workspace
