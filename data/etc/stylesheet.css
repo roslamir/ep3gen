@@ -155,6 +155,17 @@ p.center {
   text-align: center;
 }
 
+/* Used for dinkus in between logical sections of a chapter
+  margin: 0.75em;
+  padding: 0.5em;
+*/
+p.dinkus {
+  margin: 1em, 0;
+  line-height: 2.0;
+  text-indent: 0;
+  text-align: center;
+}
+
 /* Used for paragraphs with songs, poems, etc. Centered. Italicized. With margins on top and bottom. */
 p.song {
   font-style: italic;
