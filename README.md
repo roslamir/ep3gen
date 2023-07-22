@@ -1,7 +1,7 @@
 <div id="banner" align="center">
-    <br />
-    <h1>EPUBGen</h1>
-    <h3>Free/Libre Open Source e-book generator written in Go</h3>
+  <br />
+  <h1>EPUBGen</h1>
+  <h3>Free/Libre Open Source e-book generator written in Go</h3>
 </div>
 
 # Overview
@@ -79,12 +79,7 @@ You can override the default locations by editing the file `config.yaml` which s
     # Where you can find the Go text/template source files
     templates_dir: ./data/templates
 
-You can also override individual properties in the `config.yaml` by using the host environment variables. The following are the equivalent host environment variables for the above:
-
-1. `EPUBGEN_SOURCE_DIR`
-2. `EPUBGEN_TARGET_DIR`
-3. `EPUBGEN_RESOURCE_DIR`
-4. `EPUBGEN_TEMPLATES_DIR`
+You can specify another location for the `config.yaml` file by using the flag `-c path_to_config_file` when running the program.
 
 # Attributes
 Attributes are specified as `<meta>` elements under the `<head>` element of the HTML file. It has the format:

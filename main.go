@@ -1,4 +1,4 @@
-// Copyright (C) 2022, Roslan Amir. All rights reserved.
+// Copyright (C) 2022-2023, Roslan Amir. All rights reserved.
 // Created on: 13-Apr-2022
 //
 // Main source file
@@ -10,140 +10,32 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"text/template"
 	"time"
 
-	"gopkg.in/yaml.v3"
-
-	"github.com/google/uuid"
 	"github.com/roslamir/ep3gen/internal/fileutil"
+	"github.com/roslamir/ep3gen/internal/gen"
+	"github.com/roslamir/ep3gen/internal/parm"
 )
-
-const (
-	coverTemplate            = "cover.gohtml"
-	defaultTitlepageTemplate = "default-titlepage.gohtml"
-	imageTitlepageTemplate   = "image-titlepage.gohtml"
-	frontmatterTemplate      = "frontmatter.gohtml"
-	bodymatterTemplate       = "bodymatter.gohtml"
-	backmatterTemplate       = "backmatter.gohtml"
-	navTemplate              = "nav.gohtml"
-	ncxTemplate              = "ncx.goxml"
-	opfTemplate              = "opf.goxml"
-)
-
-// SectionData holds the attributes for a section.
-// Each generated HTML is considered a section and each section metadata is kept here.
-type SectionData struct {
-	ID       string // section id is used as the name of the section file and also used as the id in the package manifest
-	EpubType string // used as the value for "epub-type" attribute for the HTML <section> tag
-	Heading  string // used as the section heading to be displayed in the table of contents (TOC)
-}
-
-// ImageData holds the name and extension for an image file.
-type ImageData struct {
-	Name string // image file name without extension
-	Ext  string // extension also serves as the media type (png/jpeg)
-}
-
-var (
-	sourceDir    = "./data/source"
-	targetDir    = "./data/generated"
-	resourceDir  = "./data/etc"
-	templatesDir = "./data/templates"
-
-	tmpl           *template.Template
-	bookName       string            // the directory under which all the source files are located
-	packageDirSpec string            // the full path for the OEBPS directory
-	textDirSpec    string            // the full path for the OEBPS/Text directory
-	lines          []string          // holds the list of all lines from the source HTML file
-	currLine       string            // holds the string representing the current line
-	lineIndex      int               // index into the 'lines' slice', points to the current line
-	attributes     map[string]string // contains all the metadata attibutes
-	coverImage     ImageData         // holds the file name and extension for the cover image
-	images         []ImageData       // holds the list of all image files (other than the cover image) used in the book
-	sections       []SectionData     = make([]SectionData, 0)
-	guides         []SectionData     = make([]SectionData, 0)               // used in the Guides section of the manifest
-	bookUUID       string            = strings.ToUpper(uuid.New().String()) // Always create a new UUID for this e-book
-	currSectionNo  int                                                      // Holds the current section counter
-)
-
-func init() {
-	// Read in the configuration values
-	if cfgfile, err := os.ReadFile("./config.yaml"); err == nil {
-		cfgMap := make(map[string]string)
-		err = yaml.Unmarshal(cfgfile, &cfgMap)
-		if err != nil {
-			fmt.Println("WARNING: Error unmarshalling config.yaml file", err)
-			os.Exit(1)
-		}
-		if value, exists := cfgMap["source_dir"]; exists {
-			sourceDir = value
-		}
-		if value, exists := cfgMap["target_dir"]; exists {
-			targetDir = value
-		}
-		if value, exists := cfgMap["resource_dir"]; exists {
-			resourceDir = value
-		}
-		if value, exists := cfgMap["templates_dir"]; exists {
-			templatesDir = value
-		}
-	} else {
-		fmt.Println("WARNING: Cannot read config.yaml file -- using defaults")
-	}
-
-	// Checks if any of the above is overriden by an environment variable
-	if value := os.Getenv("EPUBGEN_SOURCE_DIR"); value != "" {
-		sourceDir = value
-	}
-	if value := os.Getenv("EPUBGEN_TARGET_DIR"); value != "" {
-		targetDir = value
-	}
-	if value := os.Getenv("EPUBGEN_RESOURCE_DIR"); value != "" {
-		resourceDir = value
-	}
-	if value := os.Getenv("EPUBGEN_TEMPLATES_DIR"); value != "" {
-		templatesDir = value
-	}
-
-	// Load in the template files
-	tmpl = template.Must(template.ParseFiles(
-		filepath.Join(templatesDir, coverTemplate),
-		filepath.Join(templatesDir, defaultTitlepageTemplate),
-		filepath.Join(templatesDir, imageTitlepageTemplate),
-		filepath.Join(templatesDir, frontmatterTemplate),
-		filepath.Join(templatesDir, bodymatterTemplate),
-		filepath.Join(templatesDir, backmatterTemplate),
-		filepath.Join(templatesDir, navTemplate),
-		filepath.Join(templatesDir, ncxTemplate),
-		filepath.Join(templatesDir, opfTemplate),
-	))
-}
 
 // Entry point
 func main() {
-	// Check that the bookdir argument is given
-	checkArgs()
+	// Check arguments and load config parameters
+	parm.CheckArgsAndParms(os.Args)
+
+	// Loads the template files. Panics if any error occurs.
+	gen.LoadTemplates()
 
 	// Read in the whole input source file and store the lines in the string slice 'lines'.
-	sourceDirSpec := filepath.Join(sourceDir, bookName)
+	sourceDirSpec := filepath.Join(parm.SourceDir, parm.BookName)
 	sourceFileSpec := filepath.Join(sourceDirSpec, "source.html")
-	lines = fileutil.ReadLines(sourceFileSpec)
+	buffer := gen.NewInputBuffer(sourceFileSpec)
 
 	// Remove the generated output directory and all children if it exists.
-	targetDirSpec := filepath.Join(targetDir, bookName)
+	targetDirSpec := filepath.Join(parm.TargetDir, parm.BookName)
 	fileutil.DeleteDir(targetDirSpec)
 
-	// Create the EPUB directory tree
-	metainfDirSpec := filepath.Join(targetDirSpec, "META-INF")
-	fileutil.CreateDirs(metainfDirSpec)
-	packageDirSpec = filepath.Join(targetDirSpec, "OEBPS")
-	imagesDirSpec := filepath.Join(packageDirSpec, "Images")
-	fileutil.CreateDirs(imagesDirSpec)
-	stylesDirSpec := filepath.Join(packageDirSpec, "Styles")
-	fileutil.CreateDirs(stylesDirSpec)
-	textDirSpec = filepath.Join(packageDirSpec, "Text")
-	fileutil.CreateDirs(textDirSpec)
+	// Initialize the gen package
+	gen.Init(sourceDirSpec, targetDirSpec)
 
 	//-----------------------------------------------------------------------------------
 	// Go through the source HTML lines and extract the metadata from the <head> section.
@@ -151,131 +43,83 @@ func main() {
 
 	// Skip over preliminary HTML lines until <head> is found
 	for {
-		currLine = nextLine()
-		if currLine == "<head>" {
+		buffer.NextLine()
+		if buffer.CurrLine == "<head>" {
 			break
 		}
 	}
 
 	// Extract all the meta data defined and store them into the 'attributes' map.
-	attributes = make(map[string]string)
-	for {
-		currLine = nextLine()
-		if currLine == "</head>" {
-			break
-		}
-		if strings.HasPrefix(currLine, "<meta") {
-			extractMetaData()
-		}
-	}
+	buffer.LoadAttributes()
 
 	//-----------------------------------------------------------------------------------
 	// Check for required attributes.
 	//-----------------------------------------------------------------------------------
 
-	var exists bool
-	var attr string
-	if attr, exists = attributes["version"]; exists {
-		if attr != "epub3" {
-			fmt.Println("ERROR: Attribute 'version' with value 'epub3' required")
-			os.Exit(1)
+	var value string
+	if value = buffer.GetAttribute("version"); value != "" {
+		if value != "epub3" {
+			panic("epubgen: attribute 'version' with value 'epub3' required")
 		}
 	} else {
-		fmt.Println("ERROR: Attribute 'version' required")
-		os.Exit(1)
+		panic("epubgen: attribute 'version' required")
 	}
-	if _, exists = attributes["title"]; !exists {
-		fmt.Println("ERROR: Attribute 'title' required")
-		os.Exit(1)
+	if value = buffer.GetAttribute("title"); value == "" {
+		panic("epubgen: attribute 'title' required")
 	}
-	if _, exists = attributes["title-sort"]; !exists {
-		fmt.Println("ERROR: Attribute 'title-sort' required")
-		os.Exit(1)
+	if value = buffer.GetAttribute("title-sort"); value == "" {
+		panic("epubgen: attribute 'title-sort' required")
 	}
-	if _, exists = attributes["author"]; !exists {
-		fmt.Println("ERROR: Attribute 'author' required")
-		os.Exit(1)
+	if value = buffer.GetAttribute("author"); value == "" {
+		panic("epubgen: attribute 'author' required")
 	}
-	if _, exists = attributes["author-sort"]; !exists {
-		fmt.Println("ERROR: Attribute 'author-sort' required")
-		os.Exit(1)
+	if value = buffer.GetAttribute("author-sort"); value == "" {
+		panic("epubgen: attribute 'author-sort' required")
 	}
-	if _, exists = attributes["published"]; !exists {
-		fmt.Println("ERROR: Attribute 'published' required")
-		os.Exit(1)
+	if value = buffer.GetAttribute("published"); value == "" {
+		panic("epubgen: attribute 'published' required")
 	}
-	if _, exists = attributes["publisher"]; !exists {
-		fmt.Println("ERROR: Attribute 'publisher' required")
-		os.Exit(1)
+	if value = buffer.GetAttribute("publisher"); value == "" {
+		panic("epubgen: attribute 'publisher' required")
 	}
-	if _, exists = attributes["language"]; !exists {
-		fmt.Println("ERROR: Attribute 'language' required")
-		os.Exit(1)
+	if value = buffer.GetAttribute("language"); value == "" {
+		panic("epubgen: attribute 'language' required")
 	}
 
-	// Attribute "cover-image" must be present.
-	// The value must be the name of the cover image file with extension of either ".jpeg" or ".png".
-	// To make life easier, assume all JPEG files have extension ".jpeg" instead of ".jpg".
-	if coverImageFile, exists := attributes["cover-image"]; exists {
-		parts := strings.Split(coverImageFile, ".")
-		coverImage = ImageData{
-			Name: parts[0],
-			Ext:  parts[1],
-		}
-		if coverImage.Ext != "png" && coverImage.Ext != "jpeg" {
-			fmt.Println("ERROR: Only image files with extension 'png' or 'jpeg' are accepted")
-			os.Exit(1)
-		}
-	} else {
-		fmt.Println("ERROR: Attribute 'cover-image' required")
-		os.Exit(1)
-	}
+	// Check and extract the mandatory attribute "cover-image" which specifies the cover image file.
+	buffer.CheckCoverImage()
 
-	// All image files used in the book must be listed in the attribute "images" separated by commas without spaces.
-	if value, exists := attributes["images"]; exists {
-		imageFiles := strings.Split(value, ",")
-		for _, imageFile := range imageFiles {
-			parts := strings.Split(imageFile, ".")
-			image := ImageData{
-				Name: parts[0],
-				Ext:  parts[1],
-			}
-			if image.Ext != "png" && image.Ext != "jpeg" {
-				fmt.Println("ERROR: Only image files with extension 'png' or 'jpeg' are accepted")
-				os.Exit(1)
-			}
-			images = append(images, image)
-		}
-	}
+	// Check and extract the optional attribute "images" which lists all the image files embedded in the book other than the cover image.
+	buffer.CheckImageFiles()
 
 	// If updating an existing e-book, use the previous "created" attribute,
 	// otherwise set the "created" attributes to the current timestamp.
 	// In either case, set the "modified" attributes to the current timestamp.
 	currTimeStamp := time.Now().UTC().Format(time.RFC3339)
-	if _, exists := attributes["created"]; !exists {
-		attributes["created"] = currTimeStamp
+	if value := buffer.GetAttribute("created"); value == "" {
+		buffer.SetAttribute("created", currTimeStamp)
 	}
-	attributes["modified"] = currTimeStamp
+	buffer.SetAttribute("modified", currTimeStamp)
 
-	fmt.Printf("\nGenerating EPUB3 e-book \"%s\" from %s\n", attributes["title"], bookName)
+	fmt.Printf("\nGenerating EPUB3 e-book \"%s\" from %s\n", buffer.GetAttribute("title"), parm.BookName)
 
-	// Skip over the lines until <body> is found
+	// Skip over the lines until the tag <body> is found
 	for {
-		currLine = nextLine()
-		if currLine == "<body>" {
+		buffer.NextLine()
+		if buffer.CurrLine == "<body>" {
 			break
 		}
 	}
-	currLine = nextLine() // should point to the first directive
+	buffer.NextLine() // should point to the first directive
 
-	//--------------------------------------------------------------------
-	// STEP 1: Generate the cover page section.
+	//=============================
+	// BOOK GENERATION STARTS HERE
+	//=============================
+	//------------------------------------------------------------------------
+	// STEP 1: Generate the cover page section with data from the attributes.
 	// Use the cover image file specified in the "cover-image" attribute.
-	//--------------------------------------------------------------------
-	section := SectionData{"cover", "cover", "Cover Page"}
-	sections = append(sections, section)
-	guides = append(guides, section)
-	genCoverSection(section)
+	//------------------------------------------------------------------------
+	buffer.GenCoverSection()
 
 	//------------------------------------------------------------------------------------------------
 	// Now, process the <body> section of the source HTML file. Lines containing HTML comments are
@@ -286,64 +130,13 @@ func main() {
 	//------------------------------------------------------------------------------------------------
 	// STEP 2: Generate the title page section.
 	//------------------------------------------------------------------------------------------------
-
-	// If the attribute "titlepage" is not given or has the value of "default", we generate the
-	// default title page section.
-	// If the attribute "titlepage" has the value of "custom", the first directive encountered must be
-	// "<!--titlepage-->" and it must be followed by one or more formatted HTML lines making up the
-	// title page section.
-	// Otherwise, we assume that the value is the name of an image file with either "png" or "jpeg"
-	// extension.
-	var titlePage string
-	if titlePage, exists = attributes["titlepage"]; !exists {
-		titlePage = "default"
-	}
-
-	section = SectionData{"titlepage", "titlepage", "Title Page"}
-	sections = append(sections, section)
-	guides = append(guides, section)
-
-	switch titlePage {
-	case "default":
-		genDefaultTitlePageSection(section)
-
-	case "custom":
-		currLine = nextLine()
-		if currLine == "<!--titlepage-->" {
-			currLine = nextLine()
-			genFrontmatterSection(section)
-		} else {
-			fmt.Println("ERROR: <!--titlepage--> directive expected")
-			os.Exit(1)
-		}
-
-	default: // assumes the value is an image file for the title page
-		parts := strings.Split(titlePage, ".")
-		image := ImageData{
-			Name: parts[0],
-			Ext:  parts[1],
-		}
-		if image.Ext != "png" && image.Ext != "jpeg" {
-			fmt.Println("ERROR: Only image files with extension 'png' or 'jpeg' are accepted")
-			os.Exit(1)
-		}
-		genImageTitlePageSection(section, image)
-	}
+	buffer.GenTitlePageSection()
 
 	//------------------------------------------------------------------------------------------------
 	// STEP 3: Generate the copyright section.
-	//------------------------------------------------------------------------------------------------
-
 	// The next directive MUST be the "<!--copyright-->" section directive.
-	if currLine == "<!--copyright-->" {
-		currLine = nextLine()
-		section = SectionData{"copyright", "copyright-page", "Copyright"}
-		sections = append(sections, section)
-		genFrontmatterSection(section)
-	} else {
-		fmt.Println("ERROR: <!--copyright--> directive expected")
-		os.Exit(1)
-	}
+	//------------------------------------------------------------------------------------------------
+	buffer.GenCopyrightSection(currTimeStamp[:10]) // Just use the date portion: 2006-01-02
 
 	//------------------------------------------------------------------------------------------------
 	// STEP 4: Generate the optional frontmatter sections.
@@ -379,136 +172,137 @@ func main() {
 
 loop1:
 	for {
-		switch currLine {
+		switch buffer.CurrLine {
 		case "<!--bibliography-->":
 			// Generate bibliography section, if requested.
 			if bibliographyGiven {
-				fmt.Println("ERROR: Directive <!--bibliography--> already specified")
-				os.Exit(1)
+				panic("epubgen: Directive <!--bibliography--> already specified")
 			}
 			bibliographyGiven = true
-			currLine = nextLine()
-			heading := extractHeading()
+			buffer.NextLine()
+			heading := extractHeading(buffer.CurrLine)
 			if heading == "" {
 				heading = "Bibliography"
 			}
-			section = newSectionData("bibliography", heading)
-			genFrontmatterSection(section)
+			section := buffer.NewSectionData("bibliography", heading)
+			buffer.AddSection(section)
+			buffer.GenFrontMatterSection(section)
 
 		case "<!--acknowledgments-->":
 			// Generate acknowledgments section, if requested.
 			if acknowledgmentsGiven {
-				fmt.Println("ERROR: Directive <!--acknowledgments--> already specified")
-				os.Exit(1)
+				panic("epubgen: Directive <!--acknowledgments--> already specified")
 			}
 			acknowledgmentsGiven = true
-			currLine = nextLine()
-			heading := extractHeading()
+			buffer.NextLine()
+			heading := extractHeading(buffer.CurrLine)
 			if heading == "" {
 				heading = "Acknowledgments"
 			}
-			section = newSectionData("acknowledgments", heading)
-			genFrontmatterSection(section)
+			section := buffer.NewSectionData("acknowledgments", heading)
+			buffer.AddSection(section)
+			buffer.GenFrontMatterSection(section)
 
 		case "<!--dedication-->":
 			// Generate dedication section, if requested.
 			if dedicationGiven {
-				fmt.Println("ERROR: Directive <!--dedication--> already specified")
-				os.Exit(1)
+				panic("epubgen: Directive <!--dedication--> already specified")
 			}
 			dedicationGiven = true
-			currLine = nextLine()
-			heading := extractHeading()
+			buffer.NextLine()
+			heading := extractHeading(buffer.CurrLine)
 			if heading == "" {
 				heading = "Dedication"
 			}
-			section = newSectionData("dedication", heading)
-			genFrontmatterSection(section)
+			section := buffer.NewSectionData("dedication", heading)
+			buffer.AddSection(section)
+			buffer.GenFrontMatterSection(section)
 
 		case "<!--epigraph-->":
 			// Generate epigraph section, if requested.
 			if epigraphGiven {
-				fmt.Println("ERROR: Directive <!--epigraph--> already specified")
-				os.Exit(1)
+				panic("epubgen: Directive <!--epigraph--> already specified")
 			}
 			epigraphGiven = true
-			currLine = nextLine()
-			heading := extractHeading()
+			buffer.NextLine()
+			heading := extractHeading(buffer.CurrLine)
 			if heading == "" {
 				heading = "Epigraph"
 			}
-			section = newSectionData("epigraph", heading)
-			genFrontmatterSection(section)
+			section := buffer.NewSectionData("epigraph", heading)
+			buffer.AddSection(section)
+			buffer.GenFrontMatterSection(section)
 
 		case "<!--foreword-->":
 			// Generate foreword section, if requested.
 			if forewordGiven {
-				fmt.Println("ERROR: Directive <!--foreword--> already specified")
-				os.Exit(1)
+				panic("epubgen: Directive <!--foreword--> already specified")
 			}
 			forewordGiven = true
-			currLine = nextLine()
-			heading := extractHeading()
+			buffer.NextLine()
+			heading := extractHeading(buffer.CurrLine)
 			if heading == "" {
 				heading = "Foreword"
 			}
-			section = newSectionData("foreword", heading)
-			genFrontmatterSection(section)
+			section := buffer.NewSectionData("foreword", heading)
+			buffer.AddSection(section)
+			buffer.GenFrontMatterSection(section)
 
 		case "<!--introduction-->":
 			// Generate introduction section, if requested.
 			if introductionGiven {
-				fmt.Println("ERROR: Directive <!--introduction--> already specified")
-				os.Exit(1)
+				panic("epubgen: Directive <!--introduction--> already specified")
 			}
 			introductionGiven = true
-			currLine = nextLine()
-			heading := extractHeading()
+			buffer.NextLine()
+			heading := extractHeading(buffer.CurrLine)
 			if heading == "" {
 				heading = "Introduction"
 			}
-			section = newSectionData("introduction", heading)
-			genFrontmatterSection(section)
+			section := buffer.NewSectionData("introduction", heading)
+			buffer.AddSection(section)
+			buffer.GenFrontMatterSection(section)
 
 		case "<!--preface-->":
 			// Generate preface section, if requested.
 			if prefaceGiven {
-				fmt.Println("ERROR: Directive <!--preface--> already specified")
-				os.Exit(1)
+				panic("epubgen: Directive <!--preface--> already specified")
 			}
 			prefaceGiven = true
-			currLine = nextLine()
-			heading := extractHeading()
+			buffer.NextLine()
+			heading := extractHeading(buffer.CurrLine)
 			if heading == "" {
 				heading = "Preface"
 			}
-			section = newSectionData("preface", heading)
-			genFrontmatterSection(section)
+			section := buffer.NewSectionData("preface", heading)
+			buffer.AddSection(section)
+			buffer.GenFrontMatterSection(section)
 
 		case "<!--prologue-->":
 			// Generate prologue section, if requested.
 			if prologueGiven {
-				fmt.Println("ERROR: Directive <!--prologue--> already specified")
-				os.Exit(1)
+				panic("epubgen: Directive <!--prologue--> already specified")
 			}
 			prologueGiven = true
-			currLine = nextLine()
-			heading := extractHeading()
+			buffer.NextLine()
+			heading := extractHeading(buffer.CurrLine)
 			if heading == "" {
 				heading = "Prologue"
 			}
-			section = newSectionData("prologue", "Prologue")
-			genFrontmatterSection(section)
+			section := buffer.NewSectionData("prologue", heading)
+			buffer.AddSection(section)
+			buffer.GenFrontMatterSection(section)
 
 		case "<!--preamble-->":
 			// Generate generic preamble section, may occur multiple times.
-			currLine = nextLine()
-			heading := extractHeading()
+			buffer.NextLine()
+			heading := extractHeading(buffer.CurrLine)
 			if heading == "" {
 				heading = "Preamble"
 			}
-			section = newSectionData("preamble", "Preamble")
-			genFrontmatterSection(section)
+			section := buffer.NewSectionData("preamble", heading)
+			buffer.AddSection(section)
+			buffer.GenFrontMatterSection(section)
 
 		default:
 			break loop1
@@ -526,27 +320,29 @@ loop1:
 
 loop2:
 	for {
-		switch currLine {
+		switch buffer.CurrLine {
 		case "<!--part-->":
 			// Generate part section, may occur zero or more times
-			currLine = nextLine()
-			heading := extractHeading()
-			section = newSectionData("part", heading)
-			genBodyMatterSection(section)
+			buffer.NextLine()
+			heading := extractHeading(buffer.CurrLine)
+			section := buffer.NewSectionData("part", heading)
+			buffer.AddSection(section)
+			buffer.GenBodyMatterSection(section)
 			if firstBodymatter {
 				firstBodymatter = false
-				guides = append(guides, section) // add to guides slice
+				buffer.AddGuide(section) // add to guides slice
 			}
 
 		case "<!--chapter-->":
 			// Generate chapter section, may occur one or more times
-			currLine = nextLine()
-			heading := extractHeading()
-			section = newSectionData("chapter", heading)
-			genBodyMatterSection(section)
+			buffer.NextLine()
+			heading := extractHeading(buffer.CurrLine)
+			section := buffer.NewSectionData("chapter", heading)
+			buffer.AddSection(section)
+			buffer.GenBodyMatterSection(section)
 			if firstBodymatter {
 				firstBodymatter = false
-				guides = append(guides, section) // add to guides slice
+				buffer.AddGuide(section) // add to guides slice
 			}
 
 		default:
@@ -557,8 +353,7 @@ loop2:
 	// If the flag 'firstBodymatter' is still true, it means neither part nor chapter was given, and
 	// we treat this as an error condition.
 	if firstBodymatter {
-		fmt.Println("ERROR: At least one <!--chapter--> directive must be specified")
-		os.Exit(1)
+		panic("epubgen: at least one <!--chapter--> directive must be specified")
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -583,65 +378,65 @@ loop2:
 
 loop3:
 	for {
-		switch currLine {
+		switch buffer.CurrLine {
 		case "<!--afterword-->":
 			// Generate afterword section, if specified.
 			if afterwordGiven {
-				fmt.Println("ERROR: Directive <!--afterword--> already specified")
-				os.Exit(1)
+				panic("epubgen: Directive <!--afterword--> already specified")
 			}
 			afterwordGiven = true
-			currLine = nextLine()
-			heading := extractHeading()
+			buffer.NextLine()
+			heading := extractHeading(buffer.CurrLine)
 			if heading == "" {
 				heading = "Afterword"
 			}
-			section = newSectionData("afterword", heading)
-			genBackmatterSection(section)
+			section := buffer.NewSectionData("afterword", heading)
+			buffer.AddSection(section)
+			buffer.GenBackMatterSection(section)
 			if firstBackmatter {
 				firstBackmatter = false
-				guides = append(guides, section)
+				buffer.AddGuide(section)
 			}
 
 		case "<!--epilogue-->":
 			// Generate epilogue section, if specified.
 			if epilogueGiven {
-				fmt.Println("ERROR: Directive <!--epilogue--> already specified")
-				os.Exit(1)
+				panic("epubgen: Directive <!--epilogue--> already specified")
 			}
 			epilogueGiven = true
-			currLine = nextLine()
-			heading := extractHeading()
+			buffer.NextLine()
+			heading := extractHeading(buffer.CurrLine)
 			if heading == "" {
 				heading = "Epilogue"
 			}
-			section = newSectionData("epilogue", heading)
-			genBackmatterSection(section)
+			section := buffer.NewSectionData("epilogue", heading)
+			buffer.AddSection(section)
+			buffer.GenBackMatterSection(section)
 			if firstBackmatter {
 				firstBackmatter = false
-				guides = append(guides, section)
+				buffer.AddGuide(section)
 			}
 
 		case "<!--appendix-->":
 			// Generate appendix section if specified, may occur multiple times.
-			currLine = nextLine()
-			heading := extractHeading()
+			buffer.NextLine()
+			heading := extractHeading(buffer.CurrLine)
 			if heading == "" {
 				heading = "Appendix"
 			}
-			section = newSectionData("appendix", heading)
-			genBackmatterSection(section)
+			section := buffer.NewSectionData("appendix", heading)
+			buffer.AddSection(section)
+			buffer.GenBackMatterSection(section)
 			if firstBackmatter {
 				firstBackmatter = false
-				guides = append(guides, section)
+				buffer.AddGuide(section)
 			}
 
 		case "<!--end-->":
 			break loop3
 
 		default:
-			fmt.Println("ERROR: Unknown directive:", currLine)
-			os.Exit(1)
+			panic("epubgen: Unknown directive: " + buffer.CurrLine)
 		}
 	}
 
@@ -650,46 +445,64 @@ loop3:
 	//------------------------------------------------------------------------------------------------
 
 	// Generate NAV (TOC) file (required for EPUB3)
-	genNAVFile()
+	buffer.GenNAVFile()
 
 	// Generate NCX file (for EPUB2 compatibility)
-	genNCXFile()
+	buffer.GenNCXFile()
 
 	// Generate the package (OPF) file
-	genOPFFile()
+	buffer.GenOPFFile()
 
 	//------------------------------------------------------------------------------------------------
 	// STEP 8: Copy the static (resource and image) files unchanged.
 	//------------------------------------------------------------------------------------------------
 
-	// <bookdir>/mimetype
-	sourceFileSpec = filepath.Join(resourceDir, "mimetype")
-	targetFileSpec := filepath.Join(targetDirSpec, "mimetype")
-	fileutil.FileCopy(sourceFileSpec, targetFileSpec)
+	// Copy the control files, the stylesheet and the image files
+	buffer.CopyStaticFiles()
 
-	// <bookdir>/META-INF/container.xml
-	sourceFileSpec = filepath.Join(resourceDir, "container.xml")
-	targetFileSpec = filepath.Join(metainfDirSpec, "container.xml")
-	fileutil.FileCopy(sourceFileSpec, targetFileSpec)
+	fmt.Printf("\n%d lines processed\n", buffer.NumLines())
+}
 
-	// <bookdir>/OEBPS/Styles/stylesheet.css
-	sourceFileSpec = filepath.Join(resourceDir, "stylesheet.css")
-	targetFileSpec = filepath.Join(stylesDirSpec, "stylesheet.css")
-	fileutil.FileCopy(sourceFileSpec, targetFileSpec)
+// extractMetaData extracts the metadata 'name' and 'content' from the current line.
+// Returns the name and content of the metadata.
+// func extractMetaData(line string) (string, string) {
+// 	index := strings.Index(line, "name=")
+// 	if index == -1 {
+// 		return "", ""
+// 	}
+// 	name := line[index+len("name=")+1:] // skip past 'name="'
+// 	index = strings.Index(name, "\"")
+// 	if index == -1 {
+// 		panic("epubgen: Invalid 'meta' HTML line: ", line)
+// 	}
+// 	name = name[:index]
 
-	// <bookdir>/OEBPS/Images/*
-	coverImageFile := coverImage.Name + "." + coverImage.Ext
-	sourceFileSpec = filepath.Join(sourceDirSpec, coverImageFile)
-	targetFileSpec = filepath.Join(imagesDirSpec, coverImageFile)
-	fileutil.FileCopy(sourceFileSpec, targetFileSpec)
-	if value, exists := attributes["images"]; exists {
-		imageFiles := strings.Split(value, ",")
-		for _, imageFile := range imageFiles {
-			sourceFileSpec = filepath.Join(sourceDirSpec, imageFile)
-			targetFileSpec = filepath.Join(imagesDirSpec, imageFile)
-			fileutil.FileCopy(sourceFileSpec, targetFileSpec)
-		}
+// 	index = strings.Index(line, "content=")
+// 	if index == -1 {
+// 		panic("epubgen: Invalid 'meta' HTML line: ", line)
+// 	}
+// 	content := line[index+len("content=")+1:] // skip past 'content="'
+// 	index = strings.Index(content, "\"")
+// 	if index == -1 {
+// 		panic("epubgen: Invalid 'meta' HTML line: ", line)
+// 	}
+// 	content = content[:index]
+
+// 	return name, content
+// }
+
+// extractHeading extracts the plain text heading from the HTML tag <hx>...</x> where x is one of 1,2,3.
+// On entry, line contains the string with the tag.
+func extractHeading(line string) string {
+	var heading string
+	if strings.HasPrefix(line, "<h1") || strings.HasPrefix(line, "<h2") || strings.HasPrefix(line, "<h3") {
+		pos := strings.Index(line, ">") + 1
+		heading = line[pos : len(line)-5] // 5 is the length of </hN>
+	} else {
+		panic("epubgen: HTML line with one of the tags <h1>, <h2> or <h3> expected")
 	}
-
-	fmt.Printf("\n%d lines processed\n", len(lines))
+	if heading == "&#160;" {
+		heading = ""
+	}
+	return heading
 }

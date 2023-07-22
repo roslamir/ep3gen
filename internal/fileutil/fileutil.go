@@ -7,28 +7,54 @@ package fileutil
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"strings"
 )
+
+// DeleteDir removes the specified directory and all children if it exists.
+func DeleteDir(dirspec string) {
+	if err := os.RemoveAll(dirspec); err != nil {
+		panic(err)
+	}
+}
+
+// OpenFile opens input file for reading given the file spec.
+func OpenFile(fileSpec string) *os.File {
+	var err error
+	var file *os.File
+	if file, err = os.Open(fileSpec); err != nil {
+		panic(err)
+	}
+	return file
+}
+
+// CreateFile creates output file given the file spec.
+// Also creates any parent directory along the path if necessary.
+func CreateFile(filespec string) *os.File {
+	var err error
+	if err = os.MkdirAll(filepath.Dir(filespec), 0770); err != nil {
+		panic(err)
+	}
+	var file *os.File
+	if file, err = os.Create(filespec); err != nil {
+		panic(err)
+	}
+	return file
+}
 
 // ReadLines reads in the input source file line by line and store in an array of lines.
 // Input: string representing the file spec.
 // Output: []string - array of strings containing the lines from the file (each line stripped off '\n')
-func ReadLines(fileSpec string) []string {
-	var file *os.File
-	var err error
+func ReadLines(sourcefilespec string) []string {
+	// Open source file for reading
+	infile := OpenFile(sourcefilespec)
+	defer infile.Close()
 
-	if file, err = os.Open(fileSpec); err != nil {
-		fmt.Println("Open failed:", err)
-		os.Exit(255)
-	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
+	scanner := bufio.NewScanner(infile)
 	scanner.Split(bufio.ScanLines)
-	var lines []string
+	lines := make([]string, 0, 1024)
 	for scanner.Scan() {
 		lines = append(lines, strings.TrimSpace(scanner.Text()))
 	}
@@ -36,56 +62,18 @@ func ReadLines(fileSpec string) []string {
 	return lines
 }
 
-// CreateFile creates output file given the file spec.
-// Return the pointer to an os.File instance.
-func CreateFile(filespec string) *os.File {
-	var file *os.File
-	var err error
-
-	if file, err = os.Create(filespec); err != nil {
-		fmt.Println("Create failed:", err)
-		os.Exit(255)
-	}
-
-	return file
-}
-
-// DeleteDir removes the specified directory and all children if it exists.
-func DeleteDir(dirspec string) {
-	if err := os.RemoveAll(dirspec); err != nil {
-		fmt.Println("RemoveAll failed:", err)
-		os.Exit(255)
-	}
-}
-
-// CreateDirs creates the specified directory and all its parents if necessary.
-func CreateDirs(dirspec string) {
-	if err := os.MkdirAll(dirspec, os.ModePerm); err != nil {
-		fmt.Println("MkdirAll failed:", err)
-		os.Exit(255)
-	}
-}
-
-// FileCopy copies the source file to the target file, overwriting if needed.
-func FileCopy(sourcefilespec, targetfilespec string) {
-	var infile *os.File
-	var err error
-	if infile, err = os.Open(sourcefilespec); err != nil {
-		fmt.Println("Open failed:", err)
-		os.Exit(255)
-	}
+// CopyFile copies the source file to the target file, overwriting if needed.
+func CopyFile(sourcefilespec, targetfilespec string) {
+	// Open source file for reading
+	infile := OpenFile(sourcefilespec)
 	defer infile.Close()
 
-	// to, err := os.OpenFile(targetfilespec, os.O_RDWR|os.O_CREATE, 0666)
-	var outfile *os.File
-	if outfile, err = os.Create(targetfilespec); err != nil {
-		fmt.Println("Create failed:", err)
-		os.Exit(255)
-	}
+	// Create output file for writing
+	outfile := CreateFile(targetfilespec)
 	defer outfile.Close()
 
-	if _, err = io.Copy(outfile, infile); err != nil {
-		fmt.Println("Copy failed:", err)
-		os.Exit(255)
+	// Copy the source file to the target file
+	if _, err := io.Copy(outfile, infile); err != nil {
+		panic(err)
 	}
 }
