@@ -72,6 +72,11 @@ func Init(sourceDir, targetDir string) {
 	textDirSpec = filepath.Join(packageDirSpec, "Text")
 }
 
+type coverTemplateData struct {
+	Title      string
+	CoverImage ImageData
+}
+
 // GenCoverSection generates the cover page section.
 func (b *InputBuffer) GenCoverSection() {
 	section := SectionData{
@@ -89,14 +94,10 @@ func (b *InputBuffer) GenCoverSection() {
 	defer outfile.Close()
 
 	// Struct to pass to the template
-	data := struct {
-		CoverImage ImageData
-		Title      string
-	}{
-		CoverImage: b.coverImage,
+	data := coverTemplateData{
 		Title:      b.attributes["title"],
+		CoverImage: b.coverImage,
 	}
-
 	if err := tmpl.ExecuteTemplate(outfile, coverTemplate, data); err != nil {
 		panic(err)
 	}
@@ -151,6 +152,22 @@ func (b *InputBuffer) GenTitlePageSection() {
 	}
 }
 
+type defaultTitlepageTemplateData struct {
+	Title       string
+	HasSubtitle bool
+	Subtitle    string
+	HasSeries   bool
+	Series      string
+	SeriesIndex string
+	Author      string
+	HasAuthor2  bool
+	Author2     string
+	HasAuthor3  bool
+	Author3     string
+	Publisher   string
+	Published   string
+}
+
 // GenDefaultTitlePageSection generates the default title page section.
 func (b *InputBuffer) GenDefaultTitlePageSection(section SectionData) {
 	fileName := section.ID + ".xhtml"
@@ -161,36 +178,22 @@ func (b *InputBuffer) GenDefaultTitlePageSection(section SectionData) {
 	defer outfile.Close()
 
 	// Struct to pass to the template
-	_, hasSubtitle := b.attributes["subtitle"]
-	_, hasSeries := b.attributes["series"]
-	_, hasAuthor2 := b.attributes["author2"]
-	_, hasAuthor3 := b.attributes["author3"]
-	data := struct {
-		Title       string
-		HasSubtitle bool
-		Subtitle    string
-		HasSeries   bool
-		Series      string
-		SeriesIndex string
-		Author      string
-		HasAuthor2  bool
-		Author2     string
-		HasAuthor3  bool
-		Author3     string
-		Publisher   string
-		Published   string
-	}{
+	subtitle, hasSubtitle := b.attributes["subtitle"]
+	series, hasSeries := b.attributes["series"]
+	author2, hasAuthor2 := b.attributes["author2"]
+	author3, hasAuthor3 := b.attributes["author3"]
+	data := defaultTitlepageTemplateData{
 		Title:       b.attributes["title"],
 		HasSubtitle: hasSubtitle,
-		Subtitle:    b.attributes["subtitle"],
+		Subtitle:    subtitle,
 		HasSeries:   hasSeries,
-		Series:      b.attributes["series"],
+		Series:      series,
 		SeriesIndex: b.attributes["series-index"],
 		Author:      b.attributes["author"],
 		HasAuthor2:  hasAuthor2,
-		Author2:     b.attributes["author2"],
+		Author2:     author2,
 		HasAuthor3:  hasAuthor3,
-		Author3:     b.attributes["author3"],
+		Author3:     author3,
 		Publisher:   b.attributes["publisher"],
 		Published:   b.attributes["published"],
 	}
@@ -202,6 +205,14 @@ func (b *InputBuffer) GenDefaultTitlePageSection(section SectionData) {
 	fmt.Println("done")
 }
 
+type imageTitlepageTemplateData struct {
+	Title    string
+	ID       string
+	EpubType string
+	Image    ImageData
+	Heading  string
+}
+
 // GenImageTitlePageSection generates the title page section comprising a single image.
 func (b *InputBuffer) GenImageTitlePageSection(section SectionData, image ImageData) {
 	fileName := section.ID + ".xhtml"
@@ -211,13 +222,7 @@ func (b *InputBuffer) GenImageTitlePageSection(section SectionData, image ImageD
 	defer outfile.Close()
 
 	// Struct to pass to the template
-	data := struct {
-		Title    string
-		ID       string
-		EpubType string
-		Image    ImageData
-		Heading  string
-	}{
+	data := imageTitlepageTemplateData{
 		Title:    b.attributes["title"],
 		ID:       section.ID,
 		EpubType: section.EpubType,
@@ -230,6 +235,15 @@ func (b *InputBuffer) GenImageTitlePageSection(section SectionData, image ImageD
 	}
 
 	fmt.Println("done")
+}
+
+type standardTemplateData struct {
+	Title       string
+	ID          string
+	EpubType    string
+	Lines       []string
+	IsCopyright bool
+	Date        string
 }
 
 // GenCopyrightSection generates the mandatory copyright section file.
@@ -264,20 +278,13 @@ func (b *InputBuffer) GenCopyrightSection(currDate string) {
 	}
 
 	// Struct to pass to the template
-	data := struct {
-		Title       string
-		ID          string
-		EpubType    string
-		IsCopyright bool
-		Date        string
-		Lines       []string
-	}{
+	data := standardTemplateData{
 		Title:       b.attributes["title"],
 		ID:          section.ID,
 		EpubType:    section.EpubType,
+		Lines:       sectionLines,
 		IsCopyright: true,
 		Date:        currDate,
-		Lines:       sectionLines,
 	}
 	if err := tmpl.ExecuteTemplate(outfile, frontmatterTemplate, data); err != nil {
 		panic(err)
@@ -306,14 +313,7 @@ func (b *InputBuffer) GenFrontMatterSection(section SectionData) {
 	}
 
 	// Struct to pass to the template
-	data := struct {
-		Title       string
-		ID          string
-		EpubType    string
-		IsCopyright bool
-		Date        string
-		Lines       []string
-	}{
+	data := standardTemplateData{
 		Title:    b.attributes["title"],
 		ID:       section.ID,
 		EpubType: section.EpubType,
@@ -346,12 +346,7 @@ func (b *InputBuffer) GenBodyMatterSection(section SectionData) {
 	}
 
 	// Struct to pass to the template
-	data := struct {
-		Title    string
-		ID       string
-		EpubType string
-		Lines    []string
-	}{
+	data := standardTemplateData{
 		Title:    b.attributes["title"],
 		ID:       section.ID,
 		EpubType: section.EpubType,
@@ -384,12 +379,7 @@ func (b *InputBuffer) GenBackMatterSection(section SectionData) {
 	}
 
 	// Struct to pass to the template
-	data := struct {
-		Title    string
-		ID       string
-		EpubType string
-		Lines    []string
-	}{
+	data := standardTemplateData{
 		Title:    b.attributes["title"],
 		ID:       section.ID,
 		EpubType: section.EpubType,
@@ -406,6 +396,16 @@ func (b *InputBuffer) GenBackMatterSection(section SectionData) {
 type PartSectionData struct {
 	Part     SectionData
 	Chapters []SectionData
+}
+
+type navTemplateData struct {
+	Title           string
+	FrontSections   []SectionData
+	HasParts        bool
+	PartSections    []PartSectionData
+	ChapterSections []SectionData
+	BackSections    []SectionData
+	Guides          []SectionData
 }
 
 // GenNAVFile generates the NAV (TOC) file (required for EPUB3).
@@ -476,15 +476,7 @@ func (b *InputBuffer) GenNAVFile() {
 	backSections := b.sections[index:]
 
 	// Struct to pass to the template
-	data := struct {
-		Title           string
-		FrontSections   []SectionData
-		HasParts        bool
-		PartSections    []PartSectionData
-		ChapterSections []SectionData
-		BackSections    []SectionData
-		Guides          []SectionData
-	}{
+	data := navTemplateData{
 		Title:           b.attributes["title"],
 		FrontSections:   frontSections,
 		HasParts:        hasParts,
@@ -501,6 +493,12 @@ func (b *InputBuffer) GenNAVFile() {
 	fmt.Println("done")
 }
 
+type ncxTemplateData struct {
+	UUID     string
+	Title    string
+	Sections []SectionData
+}
+
 // GenNCXFile generates the NCX file (for EPUB2 compatibility).
 func (b *InputBuffer) GenNCXFile() {
 	fileName := "toc.ncx"
@@ -510,11 +508,7 @@ func (b *InputBuffer) GenNCXFile() {
 	defer outfile.Close()
 
 	// Struct to pass to the template
-	data := struct {
-		UUID     string
-		Title    string
-		Sections []SectionData
-	}{
+	data := ncxTemplateData{
 		UUID:     parm.BookUUID,
 		Title:    b.attributes["title"],
 		Sections: b.sections,
@@ -527,6 +521,31 @@ func (b *InputBuffer) GenNCXFile() {
 	fmt.Println("done")
 }
 
+type opfTemplateData struct {
+	UUID        string
+	HasISBN     bool
+	ISBN        string
+	Language    string
+	Title       string
+	TitleSort   string
+	Author      string
+	AuthorSort  string
+	HasSeries   bool
+	SeriesTitle string
+	SeriesIndex string
+	Publisher   string
+	Description string
+	Subjects    []string
+	HasRights   bool
+	Rights      string
+	Created     string
+	Modified    string
+	CoverImage  ImageData
+	Images      []ImageData
+	Sections    []SectionData
+	Guides      []SectionData
+}
+
 // GenOPFFile generates the package file (package.opf).
 func (b *InputBuffer) GenOPFFile() {
 	fileName := "package.opf"
@@ -535,53 +554,30 @@ func (b *InputBuffer) GenOPFFile() {
 	outfile := fileutil.CreateFile(filepath.Join(packageDirSpec, fileName))
 	defer outfile.Close()
 
-	_, hasISBN := b.attributes["isbn"]
-	_, hasSeries := b.attributes["series"]
-	_, hasRights := b.attributes["rights"]
+	isbn, hasISBN := b.attributes["isbn"]
+	series, hasSeries := b.attributes["series"]
+	rights, hasRights := b.attributes["rights"]
 	description := strings.Replace(b.attributes["description"], "<", "&lt;", -1)
 	description = strings.Replace(description, ">", "&gt;", -1)
 
 	// Struct to pass to the template
-	data := struct {
-		UUID        string
-		HasISBN     bool
-		ISBN        string
-		Language    string
-		Title       string
-		TitleSort   string
-		Author      string
-		AuthorSort  string
-		HasSeries   bool
-		SeriesTitle string
-		SeriesIndex string
-		Publisher   string
-		Description string
-		Subjects    []string
-		HasRights   bool
-		Rights      string
-		Created     string
-		Modified    string
-		CoverImage  ImageData
-		Images      []ImageData
-		Sections    []SectionData
-		Guides      []SectionData
-	}{
+	data := opfTemplateData{
 		UUID:        parm.BookUUID,
 		HasISBN:     hasISBN,
-		ISBN:        b.attributes["isbn"],
+		ISBN:        isbn,
 		Language:    b.attributes["language"],
 		Title:       b.attributes["title"],
 		TitleSort:   b.attributes["title-sort"],
 		Author:      b.attributes["author"],
 		AuthorSort:  b.attributes["author-sort"],
 		HasSeries:   hasSeries,
-		SeriesTitle: b.attributes["series"],
+		SeriesTitle: series,
 		SeriesIndex: b.attributes["series-index"],
 		Publisher:   b.attributes["publisher"],
 		Description: description,
 		Subjects:    strings.Split(b.attributes["subject"], ", "),
 		HasRights:   hasRights,
-		Rights:      b.attributes["rights"],
+		Rights:      rights,
 		Created:     b.attributes["created"],
 		Modified:    b.attributes["modified"],
 		CoverImage:  b.coverImage,
