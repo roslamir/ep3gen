@@ -11,6 +11,10 @@
     <section id="{{.ID}}" epub:type="{{.EpubType}}">
       {{range .Lines}}{{.}}
       {{end}}
+      {{if .IsCopyright}}
+      <p class="copy">&#160;</p>
+      <p class="copy italic">This e-book generated on {{.Date}}</p>
+      {{end}}
     </section>
   </body>
 </html>

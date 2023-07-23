@@ -263,21 +263,21 @@ func (b *InputBuffer) GenCopyrightSection(currDate string) {
 		}
 	}
 
-	// Append the e-book generation date to the end of the copyright section.
-	sectionLines = append(sectionLines, `<p class="copy">&#160;</p>`)
-	sectionLines = append(sectionLines, `<p class="copy">This e-book generated on `+currDate+`</p>`)
-
 	// Struct to pass to the template
 	data := struct {
-		Title    string
-		ID       string
-		EpubType string
-		Lines    []string
+		Title       string
+		ID          string
+		EpubType    string
+		IsCopyright bool
+		Date        string
+		Lines       []string
 	}{
-		Title:    b.attributes["title"],
-		ID:       section.ID,
-		EpubType: section.EpubType,
-		Lines:    sectionLines,
+		Title:       b.attributes["title"],
+		ID:          section.ID,
+		EpubType:    section.EpubType,
+		IsCopyright: true,
+		Date:        currDate,
+		Lines:       sectionLines,
 	}
 	if err := tmpl.ExecuteTemplate(outfile, frontmatterTemplate, data); err != nil {
 		panic(err)
@@ -307,10 +307,12 @@ func (b *InputBuffer) GenFrontMatterSection(section SectionData) {
 
 	// Struct to pass to the template
 	data := struct {
-		Title    string
-		ID       string
-		EpubType string
-		Lines    []string
+		Title       string
+		ID          string
+		EpubType    string
+		IsCopyright bool
+		Date        string
+		Lines       []string
 	}{
 		Title:    b.attributes["title"],
 		ID:       section.ID,
