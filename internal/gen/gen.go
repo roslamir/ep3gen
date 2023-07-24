@@ -27,20 +27,6 @@ const (
 	opfTemplate              = "opf.goxml"
 )
 
-// SectionData holds the attributes for a section.
-// Each generated HTML is considered a section and each section metadata is kept here.
-type SectionData struct {
-	ID       string // section id is used as the name of the section file and also used as the id in the package manifest
-	EpubType string // used as the value for "epub-type" attribute for the HTML <section> tag
-	Heading  string // used as the section heading to be displayed in the table of contents (TOC)
-}
-
-// ImageData holds the name and extension for an image file.
-type ImageData struct {
-	FileName  string // image file name with extension
-	MediaType string // the media type (png/jpeg) based on extension
-}
-
 var (
 	tmpl           *template.Template
 	sourceDirSpec  string // the full path for the source directory
@@ -307,6 +293,10 @@ func (b *InputBuffer) GenFrontMatterSection(section SectionData) {
 	for {
 		sectionLines = append(sectionLines, b.CurrLine)
 		b.NextLine()
+		if b.CurrLine == "<!--figure-->" {
+			figure := b.genFigure()
+			sectionLines = append(sectionLines, figure)
+		}
 		if strings.HasPrefix(b.CurrLine, "<!--") {
 			break
 		}
@@ -340,6 +330,10 @@ func (b *InputBuffer) GenBodyMatterSection(section SectionData) {
 	for {
 		sectionLines = append(sectionLines, b.CurrLine)
 		b.NextLine()
+		if b.CurrLine == "<!--figure-->" {
+			figure := b.genFigure()
+			sectionLines = append(sectionLines, figure)
+		}
 		if strings.HasPrefix(b.CurrLine, "<!--") {
 			break
 		}
@@ -373,6 +367,10 @@ func (b *InputBuffer) GenBackMatterSection(section SectionData) {
 	for {
 		sectionLines = append(sectionLines, b.CurrLine)
 		b.NextLine()
+		if b.CurrLine == "<!--figure-->" {
+			figure := b.genFigure()
+			sectionLines = append(sectionLines, figure)
+		}
 		if strings.HasPrefix(b.CurrLine, "<!--") {
 			break
 		}
@@ -541,9 +539,10 @@ type opfTemplateData struct {
 	Created     string
 	Modified    string
 	CoverImage  ImageData
-	Images      []ImageData
-	Sections    []SectionData
-	Guides      []SectionData
+	// Images      []ImageData
+	Images   map[string]ImageData
+	Sections []SectionData
+	Guides   []SectionData
 }
 
 // GenOPFFile generates the package file (package.opf).
@@ -620,4 +619,21 @@ func (b *InputBuffer) CopyStaticFiles() {
 		targetFileSpec = filepath.Join(packageDirSpec, "Images", image.FileName)
 		fileutil.CopyFile(sourceFileSpec, targetFileSpec)
 	}
+}
+
+// genFigure generates a <figure> HTML element whenever the directive <!--figure--> is encountered.
+// It expects that the next line after the directive is a single line comprising an image file name.
+// This image file must be one of the images specified in the "images" attribute.
+// Returns the generated HTML line.
+func (b *InputBuffer) genFigure() string {
+	var line string
+	b.NextLine()
+	imageFile := strings.TrimSpace(b.CurrLine)
+	if _, exists := b.images[imageFile]; exists {
+		line = `<figure><img src="../Images/` + imageFile + `" alt="` + imageFile + `" /></figure>`
+	} else {
+		panic(fmt.Sprintf("epubgen: image file %s is not defined", imageFile))
+	}
+	b.NextLine()
+	return line
 }

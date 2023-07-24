@@ -12,16 +12,32 @@ import (
 	"github.com/roslamir/ep3gen/internal/fileutil"
 )
 
+// SectionData holds the attributes for a section.
+// Each generated HTML is considered a section and each section metadata is kept here.
+type SectionData struct {
+	ID       string // section id is used as the name of the section file and also used as the id in the package manifest
+	EpubType string // used as the value for "epub-type" attribute for the HTML <section> tag
+	Heading  string // used as the section heading to be displayed in the table of contents (TOC)
+}
+
+// ImageData holds the name and extension for an image file.
+type ImageData struct {
+	FileName  string // image file name with extension
+	MediaType string // the media type (png/jpeg) based on extension
+}
+
+// InputBuffer contains the input lines and other artifacts derived from the input lines.
 type InputBuffer struct {
-	CurrLine      string            // holds the string representing the current line
-	lineIndex     int               // index into the 'lines' slice', points to the current line
-	lines         []string          // holds the list of all lines from the source HTML file
-	attributes    map[string]string // contains all the metadata attibutes
-	coverImage    ImageData         // holds the file name and extension for the cover image
-	images        []ImageData       // holds the list of all image files (other than the cover image) used in the book
-	sections      []SectionData     // used to generated TOC and MANIFEST files
-	guides        []SectionData     // used in the Guides section of the manifest
-	currSectionNo int               // Holds the current section counter
+	CurrLine   string            // holds the string representing the current line
+	lineIndex  int               // index into the 'lines' slice', points to the current line
+	lines      []string          // holds the list of all lines from the source HTML file
+	attributes map[string]string // contains all the metadata attibutes
+	coverImage ImageData         // holds the file name and extension for the cover image
+	// images        []ImageData       // holds the list of all image files (other than the cover image) used in the book
+	images        map[string]ImageData // holds the maps of all image files (other than the cover image) used in the book
+	sections      []SectionData        // used to generated TOC and MANIFEST files
+	guides        []SectionData        // used in the Guides section of the manifest
+	currSectionNo int                  // Holds the current section counter
 }
 
 func NewInputBuffer(sourceFileSpec string) *InputBuffer {
@@ -130,7 +146,8 @@ func (b *InputBuffer) CheckImageFiles() {
 	if value == "" {
 		return
 	}
-	b.images = make([]ImageData, 0, 5)
+	// b.images = make([]ImageData, 0, 5)
+	b.images = make(map[string]ImageData)
 	files := strings.Split(value, ",")
 	for _, imageFile := range files {
 		parts := strings.Split(imageFile, ".")
@@ -142,7 +159,8 @@ func (b *InputBuffer) CheckImageFiles() {
 			FileName:  imageFile,
 			MediaType: mediaType,
 		}
-		b.images = append(b.images, image)
+		// b.images = append(b.images, image)
+		b.images[imageFile] = image
 	}
 }
 
