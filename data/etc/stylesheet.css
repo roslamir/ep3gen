@@ -78,7 +78,9 @@ h4 {
   margin: 1.33em 0;
 }
 
-h1.chapter, h2.chapter, h3.chapter {
+h1.chapter,
+h2.chapter,
+h3.chapter {
   margin-top: 3em;
   margin-bottom: 1em;
 }
@@ -117,7 +119,7 @@ div.note p.center {
    The [padding] setting gets rid of the white space around paragraphs, again so it looks more like a book. */
 p {
   /* text-indent: 1em; */
-  text-indent: 7.5%;
+  text-indent: 5%;
   text-align: justify;
   line-height: 1.5;
   margin: 0;
