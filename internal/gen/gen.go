@@ -125,8 +125,7 @@ func (b *InputBuffer) GenTitlePageSection() {
 		}
 
 	default: // assumes titlepage contains an image file name to be used for the title page
-		parts := strings.Split(titlePage, ".")
-		mediaType := parts[1]
+		_, mediaType, _ := strings.Cut(titlePage, ".")
 		if mediaType != "png" && mediaType != "jpeg" {
 			panic("epubgen: only image files with extension 'png' or 'jpeg' are accepted")
 		}
@@ -628,9 +627,10 @@ func (b *InputBuffer) CopyStaticFiles() {
 func (b *InputBuffer) genFigure() string {
 	var line string
 	b.NextLine()
-	imageFile := strings.TrimSpace(b.CurrLine)
+	line = strings.TrimSpace(b.CurrLine)
+	imageFile, caption, _ := strings.Cut(line, " ")
 	if _, exists := b.images[imageFile]; exists {
-		line = `<figure><img src="../Images/` + imageFile + `" alt="` + imageFile + `" /></figure>`
+		line = `<figure><img src="../Images/` + imageFile + `" alt="` + caption + `" /></figure>`
 	} else {
 		panic(fmt.Sprintf("epubgen: image file %s is not defined", imageFile))
 	}

@@ -20,10 +20,11 @@ type SectionData struct {
 	Heading  string // used as the section heading to be displayed in the table of contents (TOC)
 }
 
-// ImageData holds the name and extension for an image file.
+// ImageData holds the file name, the media type and optionally the caption for an image file.
 type ImageData struct {
 	FileName  string // image file name with extension
 	MediaType string // the media type (png/jpeg) based on extension
+	Caption   string // the caption for the image (optional)
 }
 
 // InputBuffer contains the input lines and other artifacts derived from the input lines.
@@ -123,17 +124,16 @@ func (b *InputBuffer) SetAttribute(key, value string) {
 // The value must be the name of the cover image file with extension of either ".jpeg" or ".png".
 // To make life easier, assume all JPEG files have extension ".jpeg" instead of ".jpg".
 func (b *InputBuffer) CheckCoverImage() {
-	value := b.attributes["cover-image"]
-	if value == "" {
+	imageFile := b.attributes["cover-image"]
+	if imageFile == "" {
 		panic("epubgen: attribute 'cover-image' required")
 	}
-	parts := strings.Split(value, ".")
-	mediaType := parts[1]
+	_, mediaType, _ := strings.Cut(imageFile, ".")
 	if mediaType != "png" && mediaType != "jpeg" {
 		panic("epubgen: only image files with extension 'png' or 'jpeg' are accepted")
 	}
 	b.coverImage = ImageData{
-		FileName:  value,
+		FileName:  imageFile,
 		MediaType: mediaType,
 	}
 }
@@ -150,8 +150,7 @@ func (b *InputBuffer) CheckImageFiles() {
 	b.images = make(map[string]ImageData)
 	files := strings.Split(value, ",")
 	for _, imageFile := range files {
-		parts := strings.Split(imageFile, ".")
-		mediaType := parts[1]
+		_, mediaType, _ := strings.Cut(imageFile, ".")
 		if mediaType != "png" && mediaType != "jpeg" {
 			panic("epubgen: only image files with extension 'png' or 'jpeg' are accepted")
 		}
