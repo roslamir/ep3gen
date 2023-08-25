@@ -119,9 +119,9 @@ div.note p.center {
    The [padding] setting gets rid of the white space around paragraphs, again so it looks more like a book. */
 p {
   /* text-indent: 1em; */
-  text-indent: 5%;
+  text-indent: 3%;
   text-align: justify;
-  line-height: 1.5;
+  line-height: 1.2;
   margin: 0;
   padding: 0;
 }
