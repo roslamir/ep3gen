@@ -23,6 +23,7 @@ body.fullpage {
 /* Here we use a Sans Serif font family. */
 .sans {
   font-family: Helvetica, sans-serif;
+  font-size: 90%;
 }
 
 /* Here we use a Monospace font family and make the text 80% of the normal body text. */
