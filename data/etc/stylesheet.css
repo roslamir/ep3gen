@@ -120,9 +120,9 @@ div.note p.center {
    The [padding] setting gets rid of the white space around paragraphs, again so it looks more like a book. */
 p {
   /* text-indent: 1em; */
-  text-indent: 3%;
+  text-indent: 4%;
   text-align: justify;
-  line-height: 1.2;
+  line-height: 1.25;
   margin: 0;
   padding: 0;
 }
@@ -226,10 +226,17 @@ p.dedication {
   margin-top: 3em;
 }
 
-/* Here we make copyright text 80% of the normal body text. */
+/* Here we make copyright text 80% of the normal body text (centered). */
 p.copy {
   text-indent: 0;
   text-align: center;
+  font-size: smaller;
+}
+
+/* Here we make copyright text 80% of the normal body text (left-aligned). */
+p.copy-left {
+  text-indent: 0;
+  text-align: left;
   font-size: smaller;
 }
 
