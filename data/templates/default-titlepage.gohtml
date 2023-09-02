@@ -10,6 +10,7 @@
   <body>
     <section id="titlepage" epub:type="titlepage">
       <p class="title">
+        <br />
         {{.Title}}
       </p>
       {{if .HasSubtitle}}
@@ -18,21 +19,26 @@
       </p>
       {{end}}
       {{if .HasSeries}}
+      <p class="publisher">
+        <br />
+        Volume {{.SeriesIndex}} of
+      </p>
       <p class="series">
-        Book {{.SeriesIndex}} of {{.Series}}
+        {{.Series}}
       </p>
       {{end}}
-      <p class="publisher">by</p>
       <p class="author">
+        <br />
+        <br />
+        <br />
         {{.Author}}
-      {{if .HasAuthor2}}
         <br />
-        {{.Author2}}{{end}}
-      {{if .HasAuthor3}}
+        {{if .HasAuthor2}}{{.Author2}}{{end}}
         <br />
-        {{.Author3}}{{end}}
+        {{if .HasAuthor3}}{{.Author3}}{{end}}
       </p>
       <p class="publisher">
+        <br />
         {{.Publisher}}
         <br />
         {{.Published}}

@@ -198,7 +198,7 @@ p.series {
   text-indent: 0;
   text-align: center;
   font-weight: bold;
-  font-size: x-large;
+  font-size: large;
   margin-top: 1em;
 }
 
@@ -213,7 +213,6 @@ p.author {
 p.publisher {
   text-indent: 0;
   text-align: center;
-  font-size: large;
   margin-top: 3em;
 }
 
