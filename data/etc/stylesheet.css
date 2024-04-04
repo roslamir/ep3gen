@@ -140,6 +140,16 @@ p.noindent {
   text-indent: 0;
 }
 
+/* For the rare cases where we need to indent the paragraph by 1 */
+p.indent1 {
+  text-indent: 4%;
+}
+
+/* For the rare cases where we need to indent the paragraph by 2 */
+p.indent2 {
+  text-indent: 8%;
+}
+
 /* For the rare cases where we need to left align the paragraph */
 p.left {
   text-indent: 0;
